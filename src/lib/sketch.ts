@@ -109,15 +109,15 @@ function draw(p5: p5, goofy: () => void) {
     } else if (timeOfDay >= 270 && timeOfDay < 360) {
         simState.light = p5.map(timeOfDay, 270, 360, 1, 0);
         simState.temp += p5.map(timeOfDay, 270, 360, 0.001 * simState.simSpeed, 0);
-        simState.humidity -= p5.map(timeOfDay, 180, 270, 0.001 * simState.simSpeed, 0);
+        simState.humidity -= p5.map(timeOfDay, 270, 360, 0.001 * simState.simSpeed, 0);
     } else if (timeOfDay >= 0 && timeOfDay < 90) {
         simState.light = 0;
         simState.temp -= p5.map(timeOfDay, 0, 90, 0, 0.001 * simState.simSpeed);
-        simState.humidity += p5.map(timeOfDay, 180, 270, 0, 0.001 * simState.simSpeed);
+        simState.humidity += p5.map(timeOfDay, 0, 90, 0, 0.001 * simState.simSpeed);
     } else if (timeOfDay >= 90 && timeOfDay < 180) {
         simState.light = 0;
         simState.temp -= p5.map(timeOfDay, 90, 180, 0.001 * simState.simSpeed, 0);
-        simState.humidity += p5.map(timeOfDay, 180, 270, 0.001 * simState.simSpeed, 0);
+        simState.humidity += p5.map(timeOfDay, 90, 180, 0.001 * simState.simSpeed, 0);
     }
 
     if (weather === "rainy" || weather === "storm") {
