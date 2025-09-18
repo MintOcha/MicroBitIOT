@@ -1,22 +1,10 @@
 import type { p5 } from "p5-svelte";
 import { plant } from "$lib/plant";
 import { SunMoon } from "$lib/daynight";
-import { cloud } from "$lib/weather";
+import { cloud } from "$lib/weather.svelte";
+import { state } from "$lib/globals.svelte";
+import type { Color, Font, Image } from "p5";
 
-var boxl: number;
-let garden: plant[] = [];
-let soilm: number, light: number, temp: number;
-let weed: any;
-let soil: any, soily: number;
-let clouds: any[] = [];
-let cloudsNum = 20;
-let weather = "clear"; //toggle btw sunny and rainy, storm
-let bgcolor: any;
-let sun: any;
-let simSpeed = 10;
-let timeOfDay = 0;
-let font;
-let windSpeed = 1;
 const WEATHERS = [
     "sunny",
     "sunny",
@@ -35,25 +23,31 @@ const WEATHERS = [
     "clear",
     "clear",
 ];
-let lastCheckTime = 0; // track last checked timeOfDay
+let soil: Image;
+let soily: number;
+let clouds: cloud[] = [];
+let cloudsNum: number = 20;
+let sun: SunMoon;
+let timeOfDay: number;
+let weather: string;
+let lastCheckTime: number;
 
 function preload(p5: p5) {
-    font = p5.loadFont("/assets/GoogleSansCode-VariableFont_wght.ttf");
-    //weed = loadModel('/assets/wheat1.obj', true);
+    // font = p5.loadFont("/assets/GoogleSansCode-VariableFont_wght.ttf");
     soil = p5.loadImage("/assets/soil.png");
-    bgcolor = p5.color(0);
+    state.bgcolor = p5.color(0);
 }
 
 function setup(p5: p5) {
     p5.createCanvas(p5.windowWidth, p5.windowHeight, p5.WEBGL);
-    boxl = p5.width / 8;
-    soilm = 1;
-    light = 1;
-    temp = 1;
+    state.boxl = p5.width / 8;
+    state.soilm = 1;
+    state.light = 1;
+    state.temp = 1;
     let t = 0;
     for (let i = -2; i <= 2; i++) {
         for (let j = -2; j <= 2; j++) {
-            garden.push(new plant(i * boxl, j * boxl, soilm, light, temp, t));
+            state.garden.push(new plant(p5, i * state.boxl, j * state.boxl, t));
             t++;
         }
     }
@@ -66,18 +60,18 @@ function setup(p5: p5) {
     const mycamera: any = p5.createCamera();
     p5.camera(814.7359049855213, -317.31411620078325, 809.9284541911895, 0, 0, 0, 0, 1, 0);
     // make the sun
-    sun = new SunMoon(100, 0, boxl * 7);
+    sun = new SunMoon(100, 0, state.boxl * 7);
 }
 
 function draw(p5: p5) {
-    p5.background(bgcolor);
+    p5.background(state.bgcolor ? state.bgcolor : p5.color(0));
     timeOfDay = (sun.angle * 180) / p5.PI;
     //print(timeOfDay)
     //print([mycamera.eyeX, mycamera.eyeY, mycamera.eyeZ])
 
     // Set up the orthographic projection
     //ortho();
-    boxl = p5.width / 8;
+    state.boxl = p5.width / 8;
 
     // Position the camera
     //camera(200 * cos(frameCount / 400) , -100, 250 * sin(frameCount / 400), 0, 0, 0, 0, 1, 0);
@@ -87,19 +81,19 @@ function draw(p5: p5) {
     for (let i = -2; i <= 2; i++) {
         for (let j = -2; j <= 2; j++) {
             p5.push();
-            p5.translate(i * boxl, 0, j * boxl);
+            p5.translate(i * state.boxl, 0, j * state.boxl);
             p5.translate(0, soily, 0);
             p5.fill("#633200");
             p5.noStroke();
             p5.texture(soil);
-            p5.box(boxl, boxl / 3, boxl);
+            p5.box(state.boxl, state.boxl / 3, state.boxl);
             p5.pop();
         }
     }
     // sun updates before all else or lighting doenst work
-    sun.display(p5, simSpeed); // 5 is the speed
-    for (let i in garden) {
-        garden[i].display(p5);
+    sun.display(p5, state.simSpeed); // 5 is the speed
+    for (let i in state.garden) {
+        state.garden[i].display(p5);
     }
     for (let i in clouds) {
         clouds[i].display(p5);
@@ -124,7 +118,7 @@ function maybeChangeWeather(p5: p5) {
             // Pick a new weather different from current
             let choices = WEATHERS;
             let next = choices[Math.floor(Math.random() * choices.length)];
-            p5.print("Weather updateing..");
+            // p5.print("Weather updateing..");
             weather = next;
         }
     }
