@@ -15,10 +15,21 @@
     let connection: MicrobitWebBluetoothConnection | null = $state(null);
     let connectionStatus = $state("DISCONNECTED");
 
+    let ping: NodeJS.Timeout | null = null; // for sending data to microbit & clear interval
+
     async function connect() {
         connection = createWebBluetoothConnection();
         connection.addEventListener("status", (event: ConnectionStatusEvent) => {
             connectionStatus = event.status;
+            if (event.status === "DISCONNECTED") {
+                if (!ping) return;
+                clearInterval(ping);
+                ping = null;
+            } else if (event.status === "CONNECTED") {
+                ping = setInterval(() => {
+                    goofy();
+                }, 5000);
+            }
         });
         connectionStatus = await connection.connect();
         connection.addEventListener(
@@ -27,7 +38,6 @@
                 const received = new TextDecoder().decode(event.value).split(";");
                 const index = parseInt(received[0]);
                 const value = received[1];
-                console.log("FJSDJSLAJ", value);
                 let realValue: number;
                 if (value === "true") {
                     realValue = 1;
@@ -60,17 +70,17 @@
     }
 
     function sendSensorReadings(values: number[]) {
-        write(values.join(";"));
+        write(values.map(v => Math.round(v)).join(";"));
     }
 
     function goofy() {
-        sendSensorReadings([33, 21, 76, 39]);
+        sendSensorReadings([simState.light*100, 0, simState.soilm*100, simState.temp*100]);
     }
 
     const sketch: Sketch = (p5) => {
         p5.preload = () => preload(p5);
         p5.setup = () => setup(p5);
-        p5.draw = () => draw(p5);
+        p5.draw = () => draw(p5, goofy);
     };
 
     let amogus = $state(0);

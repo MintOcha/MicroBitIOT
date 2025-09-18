@@ -62,7 +62,7 @@ function setup(p5: p5) {
     sun = new SunMoon(100, 0, simState.boxl * 7);
 }
 
-function draw(p5: p5) {
+function draw(p5: p5, goofy: () => void) {
     p5.background(simState.bgcolor ? simState.bgcolor : p5.color(0));
     timeOfDay = (sun.angle * 180) / p5.PI;
     //print(timeOfDay)
