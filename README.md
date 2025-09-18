@@ -1,6 +1,3 @@
-<<<<<<< HEAD
-uhmm.. what the sigma/
-=======
 # sv
 
 Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
@@ -39,4 +36,3 @@ npm run build
 You can preview the production build with `npm run preview`.
 
 > To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
->>>>>>> d037658 (Add SvelteKit)
