@@ -3,7 +3,7 @@ import { plant } from "$lib/plant";
 import { SunMoon } from "$lib/daynight";
 import { cloud } from "$lib/weather.svelte";
 import { simState } from "$lib/globals.svelte";
-import type { Color, Font, Image } from "p5";
+import type { Image } from "p5";
 
 const WEATHERS = [
     "sunny",
@@ -33,7 +33,6 @@ let weather: string;
 let lastCheckTime: number;
 
 function preload(p5: p5) {
-    // font = p5.loadFont("/assets/GoogleSansCode-VariableFont_wght.ttf");
     soil = p5.loadImage("/assets/soil.png");
     simState.bgcolor = p5.color(0);
 }
@@ -100,6 +99,9 @@ function draw(p5: p5) {
         clouds[i].move(p5);
         clouds[i].update(p5, weather);
     }
+
+    // update stats
+
     // Draw some boxes to demonstrate the lack of perspective
     maybeChangeWeather(p5);
 }

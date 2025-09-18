@@ -12,12 +12,8 @@
     import { Button } from "$lib/components/ui/button/index.js";
     import { Slider } from "$lib/components/ui/slider/index.js";
 
-    const numEffectors = 4;
-    const numSensors = 4;
-
     let connection: MicrobitWebBluetoothConnection | null = $state(null);
     let connectionStatus = $state("DISCONNECTED");
-    let effectorSettings = $state(new Array(numEffectors).fill(0));
 
     async function connect() {
         connection = createWebBluetoothConnection();
@@ -42,7 +38,7 @@
                 }
                 console.log(`Received effector data ${index} ${value}`);
                 try {
-                    effectorSettings[index] = realValue;
+                    simState.effectors[index] = realValue;
                 } catch (e) {
                     console.error(`Error processing received data: ${e}`);
                 }
@@ -81,10 +77,7 @@
 </script>
 
 <p>{connectionStatus}</p>
-<p>{effectorSettings.join(", ")}</p>
-<p>Soil moisture: {simState.soilm}</p>
-<p>Light: {simState.light}</p>
-<p>Temperature: {simState.temp}</p>
+<p>{simState.effectors.join(", ")}</p>
 <Button onclick={connect}>Connect</Button>
 <Button onclick={goofy}>Goofy</Button>
 <Slider type="single" min={0} max={100} step={1} bind:value={amogus} />
