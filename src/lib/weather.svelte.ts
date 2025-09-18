@@ -1,4 +1,4 @@
-import { state } from "./globals.svelte";
+import { simState } from "./globals.svelte";
 import type { p5 } from "p5-svelte";
 
 class cloud {
@@ -45,9 +45,9 @@ class cloud {
         this.puffSpread = 1.5;
 
         // Movement (scaled by simSpeed)
-        this.speedX = p5.random(-3, 3) * state.simSpeed;
-        this.speedY = p5.random(-0.5, 0.5) * state.simSpeed;
-        this.speedZ = p5.random(-3, 3) * state.simSpeed;
+        this.speedX = p5.random(-3, 3) * simState.simSpeed;
+        this.speedY = p5.random(-0.5, 0.5) * simState.simSpeed;
+        this.speedZ = p5.random(-3, 3) * simState.simSpeed;
 
         // Lightning + rain storage
         this.bolts = [];
@@ -88,8 +88,8 @@ class cloud {
         this.targetColor = this.getTargetColor(newState);
 
         // fade speeds scaled by simSpeed
-        let fadeStep = 0.02 * state.simSpeed;
-        let boltStep = 0.03 * state.simSpeed;
+        let fadeStep = 0.02 * simState.simSpeed;
+        let boltStep = 0.03 * simState.simSpeed;
 
         // Gradually adjust cloud/rain/bolt opacity
         if (this.targetState === "clear") {
@@ -107,7 +107,7 @@ class cloud {
         }
 
         // Smoothly lerp current color towards target (scaled by simSpeed)
-        let lerpFactor = 0.05 * state.simSpeed;
+        let lerpFactor = 0.05 * simState.simSpeed;
         this.currentColor.r = p5.lerp(this.currentColor.r, this.targetColor.r, lerpFactor);
         this.currentColor.g = p5.lerp(this.currentColor.g, this.targetColor.g, lerpFactor);
         this.currentColor.b = p5.lerp(this.currentColor.b, this.targetColor.b, lerpFactor);
@@ -137,20 +137,20 @@ class cloud {
         if (this.weatherState === "clear" && this.cloudOpacity <= 0) return; // No clouds
 
         // Random drift
-        let randFactor = (this.weatherState === "storm" ? 0.05 : 0.01) * state.simSpeed;
+        let randFactor = (this.weatherState === "storm" ? 0.05 : 0.01) * simState.simSpeed;
         this.speedX += p5.random(-randFactor, randFactor);
         this.speedY += p5.random(-randFactor * 0.5, randFactor * 0.5);
         this.speedZ += p5.random(-randFactor, randFactor);
 
         // Clamp speeds
         if (this.weatherState === "storm") {
-            this.speedX = p5.constrain(this.speedX, -1.2 * state.simSpeed, 1.2 * state.simSpeed);
-            this.speedY = p5.constrain(this.speedY, -0.6 * state.simSpeed, 0.6 * state.simSpeed);
-            this.speedZ = p5.constrain(this.speedZ, -1.2 * state.simSpeed, 1.2 * state.simSpeed);
+            this.speedX = p5.constrain(this.speedX, -1.2 * simState.simSpeed, 1.2 * simState.simSpeed);
+            this.speedY = p5.constrain(this.speedY, -0.6 * simState.simSpeed, 0.6 * simState.simSpeed);
+            this.speedZ = p5.constrain(this.speedZ, -1.2 * simState.simSpeed, 1.2 * simState.simSpeed);
         } else {
-            this.speedX = p5.constrain(this.speedX, -0.5 * state.simSpeed, 0.5 * state.simSpeed);
-            this.speedY = p5.constrain(this.speedY, -0.2 * state.simSpeed, 0.2 * state.simSpeed);
-            this.speedZ = p5.constrain(this.speedZ, -0.5 * state.simSpeed, 0.5 * state.simSpeed);
+            this.speedX = p5.constrain(this.speedX, -0.5 * simState.simSpeed, 0.5 * simState.simSpeed);
+            this.speedY = p5.constrain(this.speedY, -0.2 * simState.simSpeed, 0.2 * simState.simSpeed);
+            this.speedZ = p5.constrain(this.speedZ, -0.5 * simState.simSpeed, 0.5 * simState.simSpeed);
         }
 
         // Apply movement
@@ -159,9 +159,9 @@ class cloud {
         this.posz += this.speedZ;
 
         // Bounds
-        let boundX = p5.width / 2 - state.boxl;
-        let boundY = p5.width / 10 - state.boxl;
-        let boundZ = p5.width / 2 - state.boxl;
+        let boundX = p5.width / 2 - simState.boxl;
+        let boundY = p5.width / 10 - simState.boxl;
+        let boundZ = p5.width / 2 - simState.boxl;
 
         // Wraparound + fade
         let fadeMargin = 100;
@@ -182,19 +182,19 @@ class cloud {
         if (this.posy < boundY) this.posy = minAltitude;
 
         // Storm lightning chance
-        if (this.weatherState === "storm" && p5.random() < 0.002 * state.simSpeed) {
+        if (this.weatherState === "storm" && p5.random() < 0.002 * simState.simSpeed) {
             this.spawnBolt(p5);
         }
 
         // Update bolts
         for (let bolt of this.bolts) {
-            bolt.life -= state.simSpeed;
+            bolt.life -= simState.simSpeed;
         }
         this.bolts = this.bolts.filter((b) => b.life > 0);
 
         // Rain generation
         if (this.weatherState === "rainy" || this.weatherState === "storm") {
-            let dropCount = (this.weatherState === "storm" ? 8 : 4) * state.simSpeed;
+            let dropCount = (this.weatherState === "storm" ? 8 : 4) * simState.simSpeed;
             for (let i = 0; i < dropCount; i++) {
                 this.spawnRaindrop(p5);
             }
@@ -202,7 +202,7 @@ class cloud {
 
         // Update raindrops
         for (let drop of this.raindrops) {
-            drop.y += drop.speed * state.simSpeed;
+            drop.y += drop.speed * simState.simSpeed;
         }
         this.raindrops = this.raindrops.filter((d) => d.y < p5.height / 5);
     }
@@ -227,7 +227,7 @@ class cloud {
 
         this.bolts.push({
             segments: segments,
-            life: Number(p5.random(5, 15) * state.simSpeed),
+            life: Number(p5.random(5, 15) * simState.simSpeed),
         });
 
         let strikeX = segments[segments.length - 1][0];
@@ -235,8 +235,8 @@ class cloud {
 
         let d = Infinity;
         let id = 0;
-        for (let i = 0; i < state.garden.length; i++) {
-            let distXZ = p5.sqrt((strikeX - state.garden[i].posx) ** 2 + (strikeZ - state.garden[i].posz) ** 2);
+        for (let i = 0; i < simState.garden.length; i++) {
+            let distXZ = p5.sqrt((strikeX - simState.garden[i].posx) ** 2 + (strikeZ - simState.garden[i].posz) ** 2);
             if (distXZ < d) {
                 d = distXZ;
                 id = i;
@@ -244,7 +244,7 @@ class cloud {
         }
 
         // console.log($state.snapshot(state.garden), id);
-        state.garden[id].struckByLightning(p5, d);
+        simState.garden[id].struckByLightning(p5, d);
     }
 
     spawnRaindrop(p5: p5) {
@@ -300,7 +300,7 @@ class cloud {
             p5.stroke(100, 150, 255, 200 * this.rainOpacity * this.boundaryFade);
             p5.strokeWeight(2);
             for (let drop of this.raindrops) {
-                p5.line(drop.x, drop.y, drop.z, drop.x, drop.y + 10 * state.simSpeed, drop.z);
+                p5.line(drop.x, drop.y, drop.z, drop.x, drop.y + 10 * simState.simSpeed, drop.z);
             }
             p5.noStroke();
         }

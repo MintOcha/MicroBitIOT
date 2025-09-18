@@ -1,4 +1,4 @@
-import { state } from "$lib/globals.svelte";
+import { simState } from "$lib/globals.svelte";
 import type { p5 } from "p5-svelte";
 
 class SunMoon {
@@ -65,7 +65,7 @@ class SunMoon {
 
         // Ambient and background colours
         p5.ambientLight(calculateAmbientLight(p5, this.angle));
-        state.bgcolor = calculateBgColour(p5, this.angle);
+        simState.bgcolor = calculateBgColour(p5, this.angle);
     }
 }
 

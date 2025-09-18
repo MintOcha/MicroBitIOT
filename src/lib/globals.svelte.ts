@@ -1,7 +1,7 @@
 import { plant } from "$lib/plant";
 import { Color } from "p5";
 
-let state: {
+let simState: {
     boxl: number;
     garden: plant[];
     soilm: number;
@@ -22,4 +22,4 @@ let state: {
     windSpeed: 1,
 });
 
-export { state };
+export { simState };

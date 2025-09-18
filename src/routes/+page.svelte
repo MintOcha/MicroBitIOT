@@ -7,8 +7,10 @@
     } from "@microbit/microbit-connection";
     import P5, { type Sketch } from "p5-svelte";
     import { preload, setup, draw } from "$lib/sketch";
+    import { simState } from "$lib/globals.svelte";
 
     import { Button } from "$lib/components/ui/button/index.js";
+    import { Slider } from "$lib/components/ui/slider/index.js";
 
     const numEffectors = 4;
     const numSensors = 4;
@@ -74,10 +76,16 @@
         p5.setup = () => setup(p5);
         p5.draw = () => draw(p5);
     };
+
+    let amogus = $state(0);
 </script>
 
 <p>{connectionStatus}</p>
 <p>{effectorSettings.join(", ")}</p>
+<p>Soil moisture: {simState.soilm}</p>
+<p>Light: {simState.light}</p>
+<p>Temperature: {simState.temp}</p>
 <Button onclick={connect}>Connect</Button>
 <Button onclick={goofy}>Goofy</Button>
+<Slider type="single" min={0} max={100} step={1} bind:value={amogus} />
 <P5 {sketch} />

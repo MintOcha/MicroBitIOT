@@ -1,4 +1,4 @@
-import { state } from "./globals.svelte";
+import { simState } from "./globals.svelte";
 import type { p5 } from "p5-svelte";
 
 class plant {
@@ -20,7 +20,7 @@ class plant {
         this.id = id;
 
         this.tiltAngle = p5.radians(p5.random(-180, 180));
-        this.health = helth(p5, state.soilm, state.temp, state.light, 1);
+        this.health = helth(p5, simState.soilm, simState.temp, simState.light, 1);
         this.growth = 0;
         this.stemHeight = 0;
         this.safe = 1;
@@ -38,10 +38,10 @@ class plant {
     }
 
     update(p5: p5) {
-        this.health = helth(p5, state.soilm, state.temp, state.light, this.safe);
+        this.health = helth(p5, simState.soilm, simState.temp, simState.light, this.safe);
 
         // 🌱 Growth rate modified by plant’s unique growthFactor
-        let growthRate = p5.map(this.health, 0, 1, -0.0005, 0.0001) * state.simSpeed * this.growthFactor;
+        let growthRate = p5.map(this.health, 0, 1, -0.0005, 0.0001) * simState.simSpeed * this.growthFactor;
         this.growth = p5.constrain(this.growth + growthRate, 0, 1);
 
         this.stemHeight = (p5.height / 10) * this.growth;
@@ -55,11 +55,11 @@ class plant {
 
         p5.push();
         p5.noStroke();
-        p5.translate(this.posx, p5.windowHeight / 5 - state.boxl / 6 - this.stemHeight / 2, this.posz);
+        p5.translate(this.posx, p5.windowHeight / 5 - simState.boxl / 6 - this.stemHeight / 2, this.posz);
 
         // --- Wind sway ---
         let t = p5.frameCount * 0.01;
-        let windSway = p5.sin(t * state.simSpeed + this.windPhase) * state.windSpeed * 10 * this.windStrength;
+        let windSway = p5.sin(t * simState.simSpeed + this.windPhase) * simState.windSpeed * 10 * this.windStrength;
         p5.rotateZ(p5.radians(windSway));
 
         // --- Wilting based on health ---
