@@ -89,7 +89,7 @@
 <p>{connectionStatus}</p>
 <p>{simState.effectors.join(", ")}</p>
 <p>Light Intensity: {simState.light}</p>
-<p>Humidity</p>
+<p>Humidity: {simState.humidity}</p>
 <p>Soil Moisture: {simState.soilm}</p>
 <p>Temperature: {simState.temp}</p>
 <Button onclick={connect}>Connect</Button>

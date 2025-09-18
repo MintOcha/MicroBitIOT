@@ -7,6 +7,7 @@ let simState: {
     soilm: number;
     light: number;
     temp: number;
+    humidity: number;
     effectors: [number, number, number, number]; // light, hum, moisture, temp
     bgcolor: Color | undefined;
     simSpeed: number;

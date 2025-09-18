@@ -43,6 +43,7 @@ function setup(p5: p5) {
     simState.soilm = 0;
     simState.light = 0;
     simState.temp = 0.5;
+    simState.humidity = 0.5;
     let t = 0;
     for (let i = -2; i <= 2; i++) {
         for (let j = -2; j <= 2; j++) {
@@ -104,27 +105,33 @@ function draw(p5: p5, goofy: () => void) {
     if (timeOfDay >= 180 && timeOfDay < 270) {
         simState.light = p5.map(timeOfDay, 180, 270, 0, 1);
         simState.temp += p5.map(timeOfDay, 180, 270, 0, 0.001 * simState.simSpeed);
+        simState.humidity -= p5.map(timeOfDay, 180, 270, 0, 0.001 * simState.simSpeed);
     } else if (timeOfDay >= 270 && timeOfDay < 360) {
         simState.light = p5.map(timeOfDay, 270, 360, 1, 0);
         simState.temp += p5.map(timeOfDay, 270, 360, 0.001 * simState.simSpeed, 0);
+        simState.humidity -= p5.map(timeOfDay, 180, 270, 0.001 * simState.simSpeed, 0);
     } else if (timeOfDay >= 0 && timeOfDay < 90) {
         simState.light = 0;
         simState.temp -= p5.map(timeOfDay, 0, 90, 0, 0.001 * simState.simSpeed);
+        simState.humidity += p5.map(timeOfDay, 180, 270, 0, 0.001 * simState.simSpeed);
     } else if (timeOfDay >= 90 && timeOfDay < 180) {
         simState.light = 0;
         simState.temp -= p5.map(timeOfDay, 90, 180, 0.001 * simState.simSpeed, 0);
+        simState.humidity += p5.map(timeOfDay, 180, 270, 0.001 * simState.simSpeed, 0);
     }
 
     if (weather === "rainy" || weather === "storm") {
         simState.soilm += 0.0008 * simState.simSpeed;
     } else {
-        simState.soilm -= 0.0001 * simState.simSpeed;
+        simState.soilm -= 0.001 * simState.simSpeed;
     }
     simState.light += simState.effectors[0] / 100; // light effector
-    simState.light = p5.constrain(simState.light, 0, 1);
+    simState.humidity += (simState.effectors[1] / 1000) * simState.simSpeed; // humidity effector
     simState.soilm += (simState.effectors[2] / 1000) * simState.simSpeed; // moisture effector
-    simState.soilm = p5.constrain(simState.soilm, 0, 1);
     simState.temp -= (simState.effectors[3] / 1000) * simState.simSpeed; // temp effector
+    simState.light = p5.constrain(simState.light, 0, 1);
+    simState.humidity = p5.constrain(simState.humidity, 0, 1);
+    simState.soilm = p5.constrain(simState.soilm, 0, 1);
     simState.temp = p5.constrain(simState.temp, 0, 1);
 
     // Draw some boxes to demonstrate the lack of perspective
