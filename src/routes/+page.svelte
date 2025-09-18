@@ -5,6 +5,9 @@
         type MicrobitWebBluetoothConnection,
         UARTDataEvent,
     } from "@microbit/microbit-connection";
+    import P5, { type Sketch } from "p5-svelte";
+    import { preload, setup, draw } from "$lib/sketch";
+
     import { Button } from "$lib/components/ui/button/index.js";
 
     const numEffectors = 4;
@@ -65,9 +68,16 @@
     function goofy() {
         sendSensorReadings([33, 21, 76, 39]);
     }
+
+    const sketch: Sketch = (p5) => {
+        p5.preload = () => preload(p5);
+        p5.setup = () => setup(p5);
+        p5.draw = () => draw(p5);
+    };
 </script>
 
 <p>{connectionStatus}</p>
 <p>{effectorSettings.join(", ")}</p>
 <Button onclick={connect}>Connect</Button>
 <Button onclick={goofy}>Goofy</Button>
+<P5 {sketch} />
