@@ -11,6 +11,7 @@
 
     import { Button } from "$lib/components/ui/button/index.js";
     import { Slider } from "$lib/components/ui/slider/index.js";
+    import * as Card from "$lib/components/ui/card/index.js";
 
     let connection: MicrobitWebBluetoothConnection | null = $state(null);
     let connectionStatus = $state("DISCONNECTED");
@@ -70,11 +71,11 @@
     }
 
     function sendSensorReadings(values: number[]) {
-        write(values.map(v => Math.round(v)).join(";"));
+        write(values.map((v) => Math.round(v)).join(";"));
     }
 
     function goofy() {
-        sendSensorReadings([simState.light*100, 0, simState.soilm*100, simState.temp*100]);
+        sendSensorReadings([simState.light * 100, 0, simState.soilm * 100, simState.temp * 100]);
     }
 
     const sketch: Sketch = (p5) => {
@@ -86,13 +87,21 @@
     let amogus = $state(0);
 </script>
 
-<p>{connectionStatus}</p>
-<p>{simState.effectors.join(", ")}</p>
-<p>Light Intensity: {simState.light}</p>
-<p>Humidity: {simState.humidity}</p>
-<p>Soil Moisture: {simState.soilm}</p>
-<p>Temperature: {simState.temp}</p>
-<Button onclick={connect}>Connect</Button>
-<Button onclick={goofy}>Goofy</Button>
-<Slider type="single" min={0} max={100} step={1} bind:value={amogus} />
-<P5 {sketch} />
+<Card.Root class="absolute top-4 left-4 w-xs">
+    <Card.Header>
+        <Card.Title>{connectionStatus}</Card.Title>
+        <Card.Description>{simState.effectors.join(", ")}</Card.Description>
+    </Card.Header>
+    <Card.Content>
+        <p>Light Intensity: {simState.light}</p>
+        <p>Humidity: {simState.humidity}</p>
+        <p>Soil Moisture: {simState.soilm}</p>
+        <p>Temperature: {simState.temp}</p>
+        <Button onclick={connect}>Connect</Button>
+        <Button onclick={goofy}>Goofy</Button>
+        <Slider class="my-4" type="single" min={0} max={100} step={1} bind:value={amogus} />
+    </Card.Content>
+    <Card.Footer>
+        <p>This is very goofy</p>
+    </Card.Footer>
+</Card.Root>
