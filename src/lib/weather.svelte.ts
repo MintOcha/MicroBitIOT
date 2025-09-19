@@ -195,6 +195,7 @@ class cloud {
         // Rain generation
         if (this.weatherState === "rainy" || this.weatherState === "storm") {
             let dropCount = (this.weatherState === "storm" ? 8 : 4) * simState.simSpeed;
+            dropCount = 1
             for (let i = 0; i < dropCount; i++) {
                 this.spawnRaindrop(p5);
             }
@@ -205,6 +206,8 @@ class cloud {
             drop.y += drop.speed * simState.simSpeed;
         }
         this.raindrops = this.raindrops.filter((d) => d.y < p5.height / 5);
+
+        this.raindrops = this.raindrops.slice(0, 10);
     }
 
     spawnBolt(p5: p5) {

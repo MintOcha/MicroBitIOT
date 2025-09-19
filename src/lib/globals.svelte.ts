@@ -1,7 +1,7 @@
 import { plant } from "$lib/plant";
 import { Color } from "p5";
 
-let simState: {
+const simState: {
     boxl: number;
     garden: plant[];
     soilm: number;

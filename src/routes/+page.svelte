@@ -1,24 +1,55 @@
 <script lang="ts">
+    // Bluetooth
     import {
         ConnectionStatusEvent,
         createWebBluetoothConnection,
         type MicrobitWebBluetoothConnection,
         UARTDataEvent,
     } from "@microbit/microbit-connection";
-    import P5, { type Sketch } from "p5-svelte";
-    import { preload, setup, draw } from "$lib/sketch";
+
+    // p5.js
+    import P5, { type Sketch, type p5 } from "p5-svelte";
+    import { preload, setup, draw, windowResized } from "$lib/sketch";
     import { simState } from "$lib/globals.svelte";
 
+    // shadcn-svelte components
     import { Button } from "$lib/components/ui/button/index.js";
     import { Slider } from "$lib/components/ui/slider/index.js";
-    import * as Card from "$lib/components/ui/card/index.js";
+    import * as Select from "$lib/components/ui/select/index.js";
+    import { Badge } from "$lib/components/ui/badge/index.js";
 
+    // Custom components
+    import SensorCard from "$lib/components/sensorCard.svelte";
+
+    // Icons
+    import { Bluetooth, Sun, Wind, Droplet, Thermometer } from "lucide-svelte";
+    import ModeToggle from "$lib/components/modeToggle.svelte";
+
+    // micro:bit BLE connection
     let connection: MicrobitWebBluetoothConnection | null = $state(null);
     let connectionStatus = $state("DISCONNECTED");
-
     let ping: NodeJS.Timeout | null = null; // for sending data to microbit & clear interval
 
+    // State for simulation speed (using way too many states)
+    let simSpeedEnum = $state(1);
+    const simSpeeds = [0, 1, 2, 5, 10, 50, 100];
+    let simSpeed = $derived(simSpeeds[simSpeedEnum]);
+    $effect(() => {
+        simState.simSpeed = simSpeed;
+    });
+    let simSpeedText = $derived(simSpeed === 0 ? "Paused" : `${simSpeed}×`);
+
+    // Dropdown for simulated environment
+    const simulatedEnvironments = [
+        { value: "farm", label: "Corn farm" },
+        { value: "bus", label: "Fleet of public buses (TODO)" },
+        { value: "school", label: "School (TODO)" },
+    ];
+    let selectedEnvironment = $state("");
+    const triggerContent = $derived(simulatedEnvironments.find((f) => f.value === selectedEnvironment)?.label ?? "Select a simulated environment");
+
     async function connect() {
+        // Connect to micro:bit via BLE
         connection = createWebBluetoothConnection();
         connection.addEventListener("status", (event: ConnectionStatusEvent) => {
             connectionStatus = event.status;
@@ -59,6 +90,7 @@
     }
 
     function write(data: string) {
+        // Write data to micro:bit via Bluetooth UART
         if (!connection) {
             console.error("no device connected");
             return;
@@ -71,37 +103,110 @@
     }
 
     function sendSensorReadings(values: number[]) {
+        // Send some numbers to micro:bit
         write(values.map((v) => Math.round(v)).join(";"));
     }
 
     function goofy() {
+        // Send simulated sensor readings to micro:bit
         sendSensorReadings([simState.light * 100, 0, simState.soilm * 100, simState.temp * 100]);
     }
 
-    const sketch: Sketch = (p5) => {
+    // Convert UPPERCASE_WITH_UNDERSCORES to Sentence case
+    const toSentenceCase = (str: string): string =>
+        str
+            .toLowerCase()
+            .replace(/_/g, " ")
+            .replace(/^(\w)(.*)/, (_, first, rest) => first.toUpperCase() + rest);
+
+    const sketch: Sketch = (p5: p5) => {
         p5.preload = () => preload(p5);
         p5.setup = () => setup(p5);
         p5.draw = () => draw(p5, goofy);
+        p5.windowResized = () => windowResized(p5);
     };
-
-    let amogus = $state(0);
 </script>
 
-<Card.Root class="absolute top-4 left-4 w-xs">
-    <Card.Header>
-        <Card.Title>{connectionStatus}</Card.Title>
-        <Card.Description>{simState.effectors.join(", ")}</Card.Description>
-    </Card.Header>
-    <Card.Content>
-        <p>Light Intensity: {simState.light}</p>
-        <p>Humidity: {simState.humidity}</p>
-        <p>Soil Moisture: {simState.soilm}</p>
-        <p>Temperature: {simState.temp}</p>
-        <Button onclick={connect}>Connect</Button>
-        <Button onclick={goofy}>Goofy</Button>
-        <Slider class="my-4" type="single" min={0} max={100} step={1} bind:value={amogus} />
-    </Card.Content>
-    <Card.Footer>
-        <p>This is very goofy</p>
-    </Card.Footer>
-</Card.Root>
+<div class="absolute top-4 left-4 w-sm rounded-lg bg-background p-4 shadow-lg">
+    <div class="flex gap-2">
+        <!-- Dropdown for simulated environment -->
+        <Select.Root type="single" name="favoriteFruit" bind:value={selectedEnvironment}>
+            <Select.Trigger class="w-full">
+                {triggerContent}
+            </Select.Trigger>
+            <Select.Content>
+                <Select.Group>
+                    <Select.Label>Simulated environments</Select.Label>
+                    {#each simulatedEnvironments as fruit (fruit.value)}
+                        <Select.Item value={fruit.value} label={fruit.label} disabled={fruit.value === "bus" || fruit.value === "school"}>
+                            {fruit.label}
+                        </Select.Item>
+                    {/each}
+                </Select.Group>
+            </Select.Content>
+        </Select.Root>
+        <ModeToggle></ModeToggle>
+    </div>
+
+    <!-- Bluetooth connection controls -->
+    <div
+        class="mt-4 flex max-w-full items-center justify-between rounded-full px-2 py-2"
+        class:bg-neutral-200={connectionStatus !== "NO_AUTHORIZED_DEVICE"}
+        class:dark:bg-neutral-700={connectionStatus !== "NO_AUTHORIZED_DEVICE"}
+        class:bg-green-200={connectionStatus === "NO_AUTHORIZED_DEVICE"}
+        class:dark:bg-green-700={connectionStatus === "NO_AUTHORIZED_DEVICE"}
+    >
+        <div class="flex items-center justify-start">
+            <Bluetooth class="m-2 size-5 rounded-full text-secondary-foreground" />
+            <p class="max-w-36 truncate text-sm leading-none font-medium">{toSentenceCase(connectionStatus)}</p>
+        </div>
+        <Button class="rounded-full" onclick={connect}>Connect</Button>
+    </div>
+
+    <!-- Sensor readings display -->
+    <h3 class="mt-8 scroll-m-20 text-xl font-semibold tracking-tight">Sensor readings</h3>
+    <div class="mt-4 flex flex-col gap-2">
+        <SensorCard
+            Icon={Sun}
+            name="Light intensity"
+            value={simState.light}
+            min={0}
+            max={1}
+            fromEffectors={0.23}
+            fromEnvironment={1.2}
+            isDelta={false}
+        />
+        <SensorCard Icon={Wind} name="Humidity" value={simState.humidity} min={0} max={1} fromEffectors={0.45} fromEnvironment={1.5} isDelta={true} />
+        <SensorCard
+            Icon={Droplet}
+            name="Soil moisture"
+            value={simState.soilm}
+            min={0}
+            max={1}
+            fromEffectors={0.67}
+            fromEnvironment={1.8}
+            isDelta={true}
+        />
+        <SensorCard
+            Icon={Thermometer}
+            name="Temperature"
+            value={simState.temp}
+            min={0}
+            max={1}
+            fromEffectors={0.89}
+            fromEnvironment={2.1}
+            isDelta={true}
+        />
+    </div>
+
+    <!-- <p>{simState.effectors.join(", ")}</p> -->
+
+    <!-- Simulation speed control -->
+    <div class="mt-8 flex items-center gap-2">
+        <h3 class="text-xl font-semibold tracking-tight">Simulation speed</h3>
+        <Badge variant="secondary">{simSpeedText}</Badge>
+    </div>
+    <Slider class="my-4" type="single" min={0} max={6} step={1} bind:value={simSpeedEnum} />
+</div>
+
+<P5 {sketch} />

@@ -160,4 +160,19 @@ function maybeChangeWeather(p5: p5) {
     lastCheckTime = timeOfDay;
 }
 
-export { preload, setup, draw };
+function windowResized(p5: p5) {
+    p5.resizeCanvas(p5.windowWidth, p5.windowHeight);
+    simState.boxl = p5.width / 8;
+
+    let cornId = 0
+    for (let i = -2; i <= 2; i++) {
+        for (let j = -2; j <= 2; j++) {
+            simState.garden[cornId].posx = i * simState.boxl;
+            simState.garden[cornId].posz = j * simState.boxl;
+            cornId++;
+        }
+    }
+    sun.orbRadius = simState.boxl * 7;
+}
+
+export { preload, setup, draw, windowResized };

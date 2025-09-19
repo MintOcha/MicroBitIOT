@@ -17,7 +17,7 @@
         "@eslint/compat": "^1.2.5",
         "@eslint/js": "^9.22.0",
         "@internationalized/date": "^3.8.1",
-        "@lucide/svelte": "^0.544.0",
+        "@lucide/svelte": "^0.515.0",
         "@sveltejs/adapter-auto": "^6.0.0",
         "@sveltejs/kit": "^2.22.0",
         "@sveltejs/vite-plugin-svelte": "^6.0.0",
@@ -29,13 +29,14 @@
         "eslint-config-prettier": "^10.0.1",
         "eslint-plugin-svelte": "^3.0.0",
         "globals": "^16.0.0",
+        "lucide-svelte": "^0.544.0",
         "prettier": "^3.4.2",
         "prettier-plugin-svelte": "^3.3.3",
         "prettier-plugin-tailwindcss": "^0.6.11",
         "svelte": "^5.0.0",
         "svelte-check": "^4.0.0",
         "tailwind-merge": "^3.3.1",
-        "tailwind-variants": "^3.1.1",
+        "tailwind-variants": "^1.0.0",
         "tailwindcss": "^4.0.0",
         "tw-animate-css": "^1.3.8",
         "typescript": "^5.0.0",
@@ -46,6 +47,7 @@
     "dependencies": {
         "@microbit/microbit-connection": "^0.0.0-alpha.39",
         "@types/p5": "^1.7.6",
+        "mode-watcher": "^1.1.0",
         "p5-svelte": "^3.1.2"
     }
 }
