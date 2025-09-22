@@ -192,7 +192,7 @@
             value={simState.light}
             min={0}
             max={1}
-            effectorName="lamp"
+            effectorName="Lamp"
             effectorState={simState.effectors[0] ? "ON" : "OFF"}
             isDelta={false}
         />
@@ -202,7 +202,7 @@
         value={simState.humidity} 
         min={0} max={1} 
         effectorState={simState.effectors[1] ? "ON" : "OFF"}
-        effectorName="dehumidifier"
+        effectorName="Dehumidifier"
         isDelta={true} />
         <SensorCard
             Icon={Droplet}
