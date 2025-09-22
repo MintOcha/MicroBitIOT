@@ -34,20 +34,21 @@ class plant {
     }
 
     struckByLightning(p5: p5, d: number) {
-        this.safe = p5.min(d / (p5.width / 5), 1);
+        this.safe = p5.min(d / (p5.width / 50), 1);
+        console.log(this.safe);
     }
 
     update(p5: p5) {
         this.health = helth(p5, simState.soilm, simState.temp, simState.light, this.safe);
 
         // 🌱 Growth rate modified by plant’s unique growthFactor
-        let growthRate = p5.map(this.health, 0, 1, -0.0005, 0.0001) * simState.simSpeed * this.growthFactor;
+        let growthRate = p5.map(this.health, 0, 1, -0.002, 0.0004) * simState.simSpeed * this.growthFactor;
         this.growth = p5.constrain(this.growth + growthRate, 0, 1);
 
         this.stemHeight = (p5.height / 10) * this.growth;
 
         // 🔥 Gradually recovers from lightning strikes
-        this.safe += (1 - this.safe) / 1000;
+        this.safe += ((1 - this.safe) / 1000) * simState.simSpeed;
     }
 
     display(p5: p5) {
@@ -155,7 +156,7 @@ function temphelth(p5: p5, temp: number) {
 }
 
 function lighthelth(p5: p5, light: number) {
-    return p5.sin(0.5 * p5.PI * light);
+    return 1.1 * p5.exp(-0.1 / light);
 }
 
 export { plant };

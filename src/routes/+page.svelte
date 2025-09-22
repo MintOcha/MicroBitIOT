@@ -31,8 +31,8 @@
     let ping: NodeJS.Timeout | null = null; // for sending data to microbit & clear interval
 
     // State for simulation speed (using way too many states)
-    let simSpeedEnum = $state(1);
-    const simSpeeds = [0, 1, 2, 5, 10, 50, 100];
+    let simSpeedEnum = $state(2);
+    const simSpeeds = [0, 0.5, 1, 2, 5, 10, 50, 100];
     let simSpeed = $derived(simSpeeds[simSpeedEnum]);
     $effect(() => {
         simState.simSpeed = simSpeed;
@@ -60,7 +60,7 @@
             } else if (event.status === "CONNECTED") {
                 ping = setInterval(() => {
                     goofy();
-                }, 5000);
+                }, 500);
             }
         });
         connectionStatus = await connection.connect();
@@ -98,7 +98,7 @@
         const encoded = new TextEncoder().encode(data + "\n");
         connection
             .uartWrite(encoded)
-            .then(() => console.log(`Written: ${data}`))
+            .then(() => {})
             .catch((e) => console.error(`Write error: ${e.error}`));
     }
 
@@ -109,7 +109,7 @@
 
     function goofy() {
         // Send simulated sensor readings to micro:bit
-        sendSensorReadings([simState.light * 100, 0, simState.soilm * 100, simState.temp * 100]);
+        sendSensorReadings([simState.light * 100, simState.humidity * 100, simState.soilm * 100, simState.temp * 100]);
     }
 
     // Convert UPPERCASE_WITH_UNDERSCORES to Sentence case
@@ -208,7 +208,7 @@
         <h3 class="text-xl font-semibold tracking-tight">Simulation speed</h3>
         <Badge variant="secondary">{simSpeedText}</Badge>
     </div>
-    <Slider class="my-4" type="single" min={0} max={6} step={1} bind:value={simSpeedEnum} />
+    <Slider class="my-4" type="single" min={0} max={7} step={1} bind:value={simSpeedEnum} />
 </div>
 
 <P5 {sketch} />

@@ -102,40 +102,7 @@ function draw(p5: p5, goofy: () => void) {
     }
 
     // update stats
-    if (timeOfDay >= 180 && timeOfDay < 270) {
-        simState.light = p5.map(timeOfDay, 180, 230, 0, 0.6);
-        simState.temp += p5.map(timeOfDay, 180, 270, 0, 0.0015 * simState.simSpeed);
-        simState.humidity -= p5.map(timeOfDay, 180, 270, 0, 0.002 * simState.simSpeed);
-    } else if (timeOfDay >= 270 && timeOfDay < 360) {
-        simState.light = p5.map(timeOfDay, 300, 360, 0.6, 0);
-        simState.temp += p5.map(timeOfDay, 270, 360, 0.0015 * simState.simSpeed, 0);
-        simState.humidity -= p5.map(timeOfDay, 270, 360, 0.002 * simState.simSpeed, 0);
-    } else if (timeOfDay >= 0 && timeOfDay < 90) {
-        simState.light = 0;
-        simState.temp -= p5.map(timeOfDay, 0, 90, 0, 0.0015 * simState.simSpeed);
-        simState.humidity += p5.map(timeOfDay, 0, 90, 0, 0.002 * simState.simSpeed);
-    } else if (timeOfDay >= 90 && timeOfDay < 180) {
-        simState.light = 0;
-        simState.temp -= p5.map(timeOfDay, 90, 180, 0.0015 * simState.simSpeed, 0);
-        simState.humidity += p5.map(timeOfDay, 90, 180, 0.002 * simState.simSpeed, 0);
-    }
-
-    if (weather === "rainy" || weather === "storm") {
-        simState.soilm += 0.0008 * simState.simSpeed;
-    } else {
-        simState.soilm -= 0.001 * simState.simSpeed;
-    }
-    simState.light = p5.constrain(simState.light, 0, 0.6);
-    simState.light += simState.effectors[0] / 100; // light effector
-    simState.humidity += (simState.effectors[1] / 1000) * simState.simSpeed; // humidity effector
-    simState.soilm += (simState.effectors[2] / 1000) * simState.simSpeed; // moisture effector
-    simState.temp -= (simState.effectors[3] / 1000) * simState.simSpeed; // temp effector
-
-    setPoint();
-    simState.light = p5.constrain(simState.light, 0, 1);
-    simState.humidity = p5.constrain(simState.humidity, 0, 1);
-    simState.soilm = p5.constrain(simState.soilm, 0, 1);
-    simState.temp = p5.constrain(simState.temp, 0, 1);
+    homeostasis(p5);
 
     // Draw some boxes to demonstrate the lack of perspective
     maybeChangeWeather(p5);
@@ -178,9 +145,54 @@ function windowResized(p5: p5) {
     sun.orbRadius = simState.boxl * 7;
 }
 
+function homeostasis(p5: p5) {
+    if (timeOfDay >= 180 && timeOfDay < 270) {
+        simState.light = p5.map(timeOfDay, 180, 270, 0, 1);
+        simState.temp += p5.map(timeOfDay, 180, 270, 0, 0.0015 * simState.simSpeed);
+        simState.humidity -= p5.map(timeOfDay, 180, 270, 0, 0.001 * simState.simSpeed);
+    } else if (timeOfDay >= 270 && timeOfDay < 360) {
+        simState.light = p5.map(timeOfDay, 270, 360, 1, 0);
+        simState.temp += p5.map(timeOfDay, 270, 360, 0.0015 * simState.simSpeed, 0);
+        simState.humidity -= p5.map(timeOfDay, 270, 360, 0.001 * simState.simSpeed, 0);
+    } else if (timeOfDay >= 0 && timeOfDay < 90) {
+        simState.light = 0;
+        simState.temp -= p5.map(timeOfDay, 0, 90, 0, 0.0015 * simState.simSpeed);
+        simState.humidity += p5.map(timeOfDay, 0, 90, 0, 0.001 * simState.simSpeed);
+    } else if (timeOfDay >= 90 && timeOfDay < 180) {
+        simState.light = 0;
+        simState.temp -= p5.map(timeOfDay, 90, 180, 0.0015 * simState.simSpeed, 0);
+        simState.humidity += p5.map(timeOfDay, 90, 180, 0.001 * simState.simSpeed, 0);
+    }
+
+    if (weather === "rainy" || weather === "storm") {
+        simState.soilm += 0.001 * simState.simSpeed;
+        simState.humidity += 0.003 * simState.simSpeed;
+    }
+
+    // light effector
+    simState.light += simState.effectors[0] / 100;
+
+    // dehumidifier effector
+    simState.humidity -= (simState.effectors[1] / 500) * simState.simSpeed; // dehumidifier effector
+
+    // water pump effector
+    simState.soilm += (simState.effectors[2] / 500) * simState.simSpeed;
+    simState.humidity += (simState.effectors[2] / 500) * simState.simSpeed;
+
+    // temp effector
+    simState.temp += (simState.effectors[3] / 500) * simState.simSpeed;
+
+    setPoint();
+    simState.light = p5.constrain(simState.light, 0, 1);
+    simState.humidity = p5.constrain(simState.humidity, 0, 1);
+    simState.soilm = p5.constrain(simState.soilm, 0, 1);
+    simState.temp = p5.constrain(simState.temp, 0, 1);
+}
+
 function setPoint() {
     simState.temp += ((0.3 - simState.temp) / 50) * simState.simSpeed;
-    simState.humidity += ((0.7 - simState.humidity) / 50) * simState.simSpeed;
+    simState.humidity += ((0.5 - simState.humidity) / 200) * simState.simSpeed;
+    simState.soilm += ((simState.humidity - simState.soilm) / 400) * simState.simSpeed;
 }
 
 export { preload, setup, draw, windowResized };
