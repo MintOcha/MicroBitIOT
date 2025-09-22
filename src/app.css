@@ -1,10 +1,29 @@
+@import url(https://cdn.jsdelivr.net/npm/firacode@6.2.0/distr/fira_code.css);
+
 @import "tailwindcss";
 
 @import "tw-animate-css";
 
+@font-face {
+    font-family: "Hubot Sans";
+    src:
+        url("/assets/Hubot-Sans.woff2") format("woff2 supports variations"),
+        url("/assets/Hubot-Sans.woff2") format("woff2-variations");
+    font-weight: 200 900;
+    font-stretch: 75% 125%;
+}
+
+@font-face {
+    font-family: "Geist Mono";
+    src:
+        url("/assets/Geist-Mono.woff2") format("woff2 supports variations"),
+        url("/assets/Geist-Mono.woff2") format("woff2-variations");
+    font-weight: 100 900;
+}
+
 @theme {
-    --font-sans: Inter, sans-serif;
-    --font-mono: "Iosevka Extended", monospace;
+    --font-sans: "Hubot Sans", sans-serif;
+    --font-mono: "Geist Mono", monospace;
 }
 
 @custom-variant dark (&:is(.dark *));
