@@ -143,7 +143,19 @@ class plant {
 // --- Safe helth function ---
 function helth(p5: p5, soilm: number, temp: number, light: number, safety = 1) {
     let vals = [soilm, temp, light, safety].map((v) => (isNaN(v) ? 0 : v));
-    return p5.constrain((vals[0] + vals[1] + vals[2] + vals[3]) / 4, 0, 1);
+    return p5.constrain((soilmhelth(p5, vals[0]) + temphelth(p5, vals[1]) + lighthelth(p5, vals[2]) + vals[3]) / 4, 0, 1);
+}
+
+function soilmhelth(p5: p5, soilm: number) {
+    return p5.sin(p5.PI * soilm - 0.67);
+}
+
+function temphelth(p5: p5, temp: number) {
+    return p5.exp(2.13045 * temp - 1) * (2 - p5.exp(0.8 * temp));
+}
+
+function lighthelth(p5: p5, light: number) {
+    return p5.sin(0.5 * p5.PI * light);
 }
 
 export { plant };
