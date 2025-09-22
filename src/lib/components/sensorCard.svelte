@@ -9,8 +9,8 @@
         value,
         min,
         max,
-        fromEffectors,
-        fromEnvironment,
+        effectorName,
+        effectorState,
         isDelta = false,
     }: {
         Icon: any;
@@ -18,8 +18,8 @@
         value: number;
         min: number;
         max: number;
-        fromEffectors: number;
-        fromEnvironment: number;
+        effectorName: string;
+        effectorState: string;
         isDelta: boolean;
     } = $props();
 
@@ -52,12 +52,8 @@
             <div class="h-1.5 rounded-full bg-primary" style="width: {((value - min) / (max - min)) * 100}%"></div>
         </div>
         <div class="mt-2 flex gap-2">
-            <Badge variant="secondary" class="font-mono font-semibold">{componentText(fromEffectors)}</Badge>
-            <p class="text-sm text-muted-foreground">From effectors</p>
-        </div>
-        <div class="mt-2 flex gap-2">
-            <Badge variant="secondary" class="font-mono font-semibold">{componentText(fromEnvironment)}</Badge>
-            <p class="text-sm text-muted-foreground">From environment</p>
+            <Badge variant="secondary" class="font-mono font-semibold">{effectorState}</Badge>
+            <p class="text-sm text-muted-foreground">{effectorName}</p>
         </div>
     </Card.Content>
 </Card.Root>

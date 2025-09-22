@@ -153,14 +153,16 @@
     <!-- Bluetooth connection controls -->
     <div
         class="mt-4 flex max-w-full items-center justify-between rounded-full px-2 py-2"
-        class:bg-neutral-200={connectionStatus !== "NO_AUTHORIZED_DEVICE"}
-        class:dark:bg-neutral-700={connectionStatus !== "NO_AUTHORIZED_DEVICE"}
-        class:bg-green-200={connectionStatus === "NO_AUTHORIZED_DEVICE"}
-        class:dark:bg-green-700={connectionStatus === "NO_AUTHORIZED_DEVICE"}
+        class:bg-red-200={connectionStatus !== "CONNECTED"}
+        class:dark:bg-red-700={connectionStatus !== "CONNECTED"}
+        class:bg-green-200={connectionStatus === "CONNECTED"}
+        class:dark:bg-green-700={connectionStatus === "CONNECTED"}
+        class:bg-yellow-200={connectionStatus === "CONNECTING"}
+        class:dark:bg-yellow-700={connectionStatus === "CONNECTING"}
     >
         <div class="flex items-center justify-start">
             <Bluetooth class="m-2 size-5 rounded-full text-secondary-foreground" />
-            <p class="max-w-36 truncate text-sm leading-none font-medium">{toSentenceCase(connectionStatus)}</p>
+            <p class="max-w-36 truncate text-sm leading-none font-medium">{toSentenceCase(connectionStatus == "SUPPORT_NOT_KNOWN" ? connectionStatus = "CONNECTED" : connectionStatus)}</p>
         </div>
         <Button class="rounded-full" onclick={connect}>Connect</Button>
     </div>
@@ -174,29 +176,38 @@
             value={simState.light}
             min={0}
             max={1}
-            fromEffectors={0.23}
-            fromEnvironment={1.2}
+            effectorName="lamp"
+            effectorState={simState.effectors[0] ? "ON" : "OFF"}
             isDelta={false}
         />
-        <SensorCard Icon={Wind} name="Humidity" value={simState.humidity} min={0} max={1} fromEffectors={0.45} fromEnvironment={1.5} isDelta={true} />
+        <SensorCard 
+        Icon={Wind} 
+        name="Humidity" 
+        value={simState.humidity} 
+        min={0} max={1} 
+        effectorState={simState.effectors[1] ? "ON" : "OFF"}
+        effectorName="dehumidifier"
+        isDelta={true} />
         <SensorCard
             Icon={Droplet}
             name="Soil moisture"
             value={simState.soilm}
             min={0}
             max={1}
-            fromEffectors={0.67}
-            fromEnvironment={1.8}
+            effectorName="Water pump"
+
+            effectorState={simState.effectors[2] ? "ON" : "OFF"}
+
             isDelta={true}
         />
         <SensorCard
             Icon={Thermometer}
             name="Temperature"
-            value={simState.temp}
+            value={simState.temp * 65 / 100} 
             min={0}
             max={1}
-            fromEffectors={0.89}
-            fromEnvironment={2.1}
+            effectorState={simState.effectors[3] ? "ON" : "OFF"}
+            effectorName="Heater"
             isDelta={true}
         />
     </div>

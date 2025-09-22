@@ -173,14 +173,14 @@ function homeostasis(p5: p5) {
     simState.light += simState.effectors[0] / 100;
 
     // dehumidifier effector
-    simState.humidity -= (simState.effectors[1] / 500) * simState.simSpeed; // dehumidifier effector
+    simState.humidity -= (simState.effectors[1] / 200) * simState.simSpeed; // dehumidifier effector
 
     // water pump effector
-    simState.soilm += (simState.effectors[2] / 500) * simState.simSpeed;
-    simState.humidity += (simState.effectors[2] / 500) * simState.simSpeed;
+    simState.soilm += (simState.effectors[2] / 200) * simState.simSpeed;
+    simState.humidity += (simState.effectors[2] / 200) * simState.simSpeed;
 
     // temp effector
-    simState.temp += (simState.effectors[3] / 500) * simState.simSpeed;
+    simState.temp += (simState.effectors[3] / 200) * simState.simSpeed;
 
     setPoint();
     simState.light = p5.constrain(simState.light, 0, 1);
@@ -190,8 +190,8 @@ function homeostasis(p5: p5) {
 }
 
 function setPoint() {
-    simState.temp += ((0.3 - simState.temp) / 50) * simState.simSpeed;
-    simState.humidity += ((0.5 - simState.humidity) / 200) * simState.simSpeed;
+    simState.temp += ((0.3 - simState.temp) / 300) * simState.simSpeed;
+    simState.humidity += ((0.5 - simState.humidity) / 300) * simState.simSpeed;
     simState.soilm += ((simState.humidity - simState.soilm) / 400) * simState.simSpeed;
 }
 
