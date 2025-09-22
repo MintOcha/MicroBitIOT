@@ -15,8 +15,9 @@
     // shadcn-svelte components
     import { Button } from "$lib/components/ui/button/index.js";
     import { Slider } from "$lib/components/ui/slider/index.js";
-    import * as Select from "$lib/components/ui/select/index.js";
     import { Badge } from "$lib/components/ui/badge/index.js";
+    import * as Select from "$lib/components/ui/select/index.js";
+    import * as AlertDialog from "$lib/components/ui/alert-dialog/index.js";
 
     // Custom components
     import SensorCard from "$lib/components/sensorCard.svelte";
@@ -31,13 +32,27 @@
     let ping: NodeJS.Timeout | null = null; // for sending data to microbit & clear interval
 
     // State for simulation speed (using way too many states)
-    let simSpeedEnum = $state(2);
     const simSpeeds = [0, 0.5, 1, 2, 5, 10, 50, 100];
+    let simSpeedEnum = $state(2);
     let simSpeed = $derived(simSpeeds[simSpeedEnum]);
+    let simSpeedText = $derived(simSpeed === 0 ? "Paused" : `${simSpeed}×`);
+
+    let possibleEpilepsy = $state(true);
+    let alertOpen = $state(false);
+
     $effect(() => {
         simState.simSpeed = simSpeed;
+        if (simSpeed >= 50 && !alertOpen && possibleEpilepsy) {
+            alertOpen = true;
+            simSpeedEnum = 2;
+        }
     });
-    let simSpeedText = $derived(simSpeed === 0 ? "Paused" : `${simSpeed}×`);
+
+    function alertConfirmed() {
+        possibleEpilepsy = false;
+        alertOpen = false;
+        simSpeedEnum = 6;
+    }
 
     // Dropdown for simulated environment
     const simulatedEnvironments = [
@@ -48,6 +63,7 @@
     let selectedEnvironment = $state("");
     const triggerContent = $derived(simulatedEnvironments.find((f) => f.value === selectedEnvironment)?.label ?? "Select a simulated environment");
 
+    // Functions for BLE
     async function connect() {
         // Connect to micro:bit via BLE
         connection = createWebBluetoothConnection();
@@ -220,6 +236,48 @@
         <Badge variant="secondary">{simSpeedText}</Badge>
     </div>
     <Slider class="my-4" type="single" min={0} max={7} step={1} bind:value={simSpeedEnum} />
+
+    <AlertDialog.Root
+        bind:open={alertOpen}
+        onOpenChange={(value: boolean) => {
+            if (value === false) {
+                simSpeedEnum = 2;
+            }
+        }}
+    >
+        <AlertDialog.Content>
+            <AlertDialog.Header>
+                <AlertDialog.Title>Important health warning: Photosensitive epilepsy</AlertDialog.Title>
+                <AlertDialog.Description class="space-y-4">
+                    <p>
+                        A very small percentage of people may experience a seizure when exposed to certain visual images, including flashing lights or
+                        patterns that may appear in video games. Even people who have no history of seizures or epilepsy may have an undiagnosed
+                        condition that can cause these “photosensitive epileptic seizures” while playing video games.
+                    </p>
+                    <p><b>Immediately stop playing and consult a doctor if you experience any symptoms.</b></p>
+                    <p>
+                        These seizures may have a variety of symptoms, including lightheadedness, altered vision, eye or face twitching, jerking or
+                        shaking of arms or legs, disorientation, confusion, or momentary loss of awareness. Seizures may also cause loss of
+                        consciousness or convulsions that can lead to injury from falling down or striking nearby objects.
+                    </p>
+                    <p>
+                        Parents should watch for or ask their children about the above symptoms. Children and teenagers are more likely than adults to
+                        experience these seizures.
+                    </p>
+                    <p>You may reduce risk of photosensitive epileptic seizures by taking the following precautions:</p>
+                    <ul class="list-disc space-y-1 pl-6">
+                        <li>Play in a well-lit room.</li>
+                        <li>Do not play if you are drowsy or fatigued.</li>
+                    </ul>
+                    <p>If you or any of your relatives have a history of seizures or epilepsy, consult a doctor before playing video games.</p>
+                </AlertDialog.Description>
+            </AlertDialog.Header>
+            <AlertDialog.Footer>
+                <AlertDialog.Cancel>Cancel</AlertDialog.Cancel>
+                <AlertDialog.Action onclick={alertConfirmed}>Continue</AlertDialog.Action>
+            </AlertDialog.Footer>
+        </AlertDialog.Content>
+    </AlertDialog.Root>
 </div>
 
 <P5 {sketch} />
