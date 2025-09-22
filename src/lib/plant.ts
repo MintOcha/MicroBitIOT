@@ -43,7 +43,7 @@ class plant {
         this.health = helth(p5, simState.soilm, simState.temp, simState.light, this.safe);
         
         // 🌱 Growth rate modified by plant’s unique growthFactor
-        let growthRate = p5.map(this.health, 0, 1, -0.0005, 0.0005) * simState.simSpeed * this.growthFactor;
+        let growthRate = p5.map(this.health, 0, 1, -0.0005, 0.00028) * simState.simSpeed * this.growthFactor;
         this.growth = p5.constrain(this.growth + growthRate, 0, 1);
 
         this.stemHeight = (p5.height / 10) * this.growth;

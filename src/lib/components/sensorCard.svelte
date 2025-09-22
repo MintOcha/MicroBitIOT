@@ -52,7 +52,7 @@
             <div class="h-1.5 rounded-full bg-primary" style="width: {((value - min) / (max - min)) * 100}%"></div>
         </div>
         <div class="mt-2 flex gap-2">
-            <Badge variant="secondary" class="font-mono font-semibold">{effectorState}</Badge>
+            <Badge variant="secondary" class={effectorState === "ON" ? "bg-green-500 text-white font-mono font-semibold" : "bg-red-500 text-white font-mono font-semibold"}>{effectorState}</Badge>
             <p class="text-sm text-muted-foreground">{effectorName}</p>
         </div>
     </Card.Content>

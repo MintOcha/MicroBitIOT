@@ -180,7 +180,7 @@ function homeostasis(p5: p5) {
     simState.humidity += (simState.effectors[2] / 200) * simState.simSpeed;
 
     // temp effector
-    simState.temp += (simState.effectors[3] / 200) * simState.simSpeed;
+    simState.temp += (simState.effectors[3] / 600) * simState.simSpeed;
 
     setPoint();
     simState.light = p5.constrain(simState.light, 0, 1);
