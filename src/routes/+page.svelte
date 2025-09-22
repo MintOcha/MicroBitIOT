@@ -125,9 +125,11 @@
         p5.draw = () => draw(p5, goofy);
         p5.windowResized = () => windowResized(p5);
     };
+
+    const onwheel = (event: WheelEvent) => event.stopPropagation();
 </script>
 
-<div class="absolute top-4 left-4 w-sm rounded-lg bg-background p-4 shadow-lg">
+<div class="absolute top-4 left-4 max-h-[calc(100vh-2rem)] w-sm overflow-y-auto rounded-lg bg-background p-4 shadow-lg" {onwheel}>
     <div class="flex gap-2">
         <!-- Dropdown for simulated environment -->
         <Select.Root type="single" name="favoriteFruit" bind:value={selectedEnvironment}>
