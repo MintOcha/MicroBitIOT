@@ -29,7 +29,6 @@ let clouds: cloud[] = [];
 let cloudsNum: number = 20;
 let sun: SunMoon;
 let timeOfDay: number;
-let weather: string;
 let lastCheckTime: number;
 
 function preload(p5: p5) {
@@ -39,6 +38,8 @@ function preload(p5: p5) {
 
 function setup(p5: p5) {
     p5.createCanvas(p5.windowWidth, p5.windowHeight, p5.WEBGL);
+    p5.frameRate(60);
+
     simState.boxl = p5.width / 8;
     simState.soilm = 0;
     simState.light = 0;
@@ -65,6 +66,8 @@ function setup(p5: p5) {
 
 function draw(p5: p5, goofy: () => void) {
     p5.background(simState.bgcolor ? simState.bgcolor : p5.color(0));
+    simState.frameCount++;
+
     timeOfDay = (sun.angle * 180) / p5.PI;
     //print(timeOfDay)
     //print([mycamera.eyeX, mycamera.eyeY, mycamera.eyeZ])
@@ -98,18 +101,20 @@ function draw(p5: p5, goofy: () => void) {
     for (let i in clouds) {
         clouds[i].display(p5);
         clouds[i].move(p5);
-        clouds[i].update(p5, weather);
+        clouds[i].update(p5, simState.weather);
     }
 
     // update stats
     homeostasis(p5);
 
     // Draw some boxes to demonstrate the lack of perspective
-    maybeChangeWeather(p5);
+    if (!simState.inClassroom) {
+        maybeChangeWeather(p5);
+    }
 }
 
 function keyPressed(p5: p5) {
-    weather = "storm";
+    simState.weather = "storm";
 }
 
 function maybeChangeWeather(p5: p5) {
@@ -123,7 +128,7 @@ function maybeChangeWeather(p5: p5) {
             let choices = WEATHERS;
             let next = choices[Math.floor(Math.random() * choices.length)];
             // p5.print("Weather updateing..");
-            weather = next;
+            simState.weather = next;
         }
     }
 
@@ -164,7 +169,7 @@ function homeostasis(p5: p5) {
         simState.humidity += p5.map(timeOfDay, 90, 180, 0.001 * simState.simSpeed, 0);
     }
 
-    if (weather === "rainy" || weather === "storm") {
+    if (simState.weather === "rainy" || simState.weather === "storm") {
         simState.soilm += 0.001 * simState.simSpeed;
         simState.humidity += 0.003 * simState.simSpeed;
     }

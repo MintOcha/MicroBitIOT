@@ -48,6 +48,7 @@
         "@microbit/microbit-connection": "^0.0.0-alpha.39",
         "@types/p5": "^1.7.6",
         "mode-watcher": "^1.1.0",
-        "p5-svelte": "^3.1.2"
+        "p5-svelte": "^3.1.2",
+        "socket.io-client": "^4.8.1"
     }
 }

@@ -26,10 +26,30 @@
     import { Bluetooth, Sun, Wind, Droplet, Thermometer } from "lucide-svelte";
     import ModeToggle from "$lib/components/modeToggle.svelte";
 
+    // WebSocket
+    import { io } from "socket.io-client";
+
     // micro:bit BLE connection
     let connection: MicrobitWebBluetoothConnection | null = $state(null);
     let connectionStatus = $state("DISCONNECTED");
     let ping: NodeJS.Timeout | null = null; // for sending data to microbit & clear interval
+
+    // ws connection
+    const socket = io("http://localhost:3000");
+    socket.on("connect", () => {
+        console.log("Connected to server");
+        simState.inClassroom = true;
+    });
+    socket.on("weather", (weather) => {
+        console.log("Received weather update:", weather);
+        simState.weather = weather;
+    });
+    socket.on("time", (frameCount) => {
+        simState.frameCount = frameCount;
+    });
+    socket.on("simSpeed", (speed) => {
+        simState.simSpeed = speed;
+    });
 
     // State for simulation speed (using way too many states)
     const simSpeeds = [0, 0.5, 1, 2, 5, 10, 50, 100];
@@ -178,7 +198,9 @@
     >
         <div class="flex items-center justify-start">
             <Bluetooth class="m-2 size-5 rounded-full text-secondary-foreground" />
-            <p class="max-w-36 truncate text-sm leading-none font-medium">{toSentenceCase(connectionStatus == "SUPPORT_NOT_KNOWN" ? connectionStatus = "CONNECTED" : connectionStatus)}</p>
+            <p class="max-w-36 truncate text-sm leading-none font-medium">
+                {toSentenceCase(connectionStatus == "SUPPORT_NOT_KNOWN" ? (connectionStatus = "CONNECTED") : connectionStatus)}
+            </p>
         </div>
         <Button class="rounded-full" onclick={connect}>Connect</Button>
     </div>
@@ -196,14 +218,16 @@
             effectorState={simState.effectors[0] ? "ON" : "OFF"}
             isDelta={false}
         />
-        <SensorCard 
-        Icon={Wind} 
-        name="Humidity" 
-        value={simState.humidity} 
-        min={0} max={1} 
-        effectorState={simState.effectors[1] ? "ON" : "OFF"}
-        effectorName="Dehumidifier"
-        isDelta={true} />
+        <SensorCard
+            Icon={Wind}
+            name="Humidity"
+            value={simState.humidity}
+            min={0}
+            max={1}
+            effectorState={simState.effectors[1] ? "ON" : "OFF"}
+            effectorName="Dehumidifier"
+            isDelta={true}
+        />
         <SensorCard
             Icon={Droplet}
             name="Soil moisture"
@@ -211,15 +235,13 @@
             min={0}
             max={1}
             effectorName="Water pump"
-
             effectorState={simState.effectors[2] ? "ON" : "OFF"}
-
             isDelta={true}
         />
         <SensorCard
             Icon={Thermometer}
             name="Temperature"
-            value={simState.temp * 65 / 100} 
+            value={(simState.temp * 65) / 100}
             min={0}
             max={1}
             effectorState={simState.effectors[3] ? "ON" : "OFF"}
@@ -231,11 +253,13 @@
     <!-- <p>{simState.effectors.join(", ")}</p> -->
 
     <!-- Simulation speed control -->
-    <div class="mt-8 flex items-center gap-2">
-        <h3 class="text-xl font-semibold tracking-tight">Simulation speed</h3>
-        <Badge variant="secondary">{simSpeedText}</Badge>
-    </div>
-    <Slider class="my-4" type="single" min={0} max={7} step={1} bind:value={simSpeedEnum} />
+    {#if !simState.inClassroom}
+        <div class="mt-8 flex items-center gap-2">
+            <h3 class="text-xl font-semibold tracking-tight">Simulation speed</h3>
+            <Badge variant="secondary">{simSpeedText}</Badge>
+        </div>
+        <Slider class="my-4" type="single" min={0} max={7} step={1} bind:value={simSpeedEnum} />
+    {/if}
 
     <AlertDialog.Root
         bind:open={alertOpen}
