@@ -93,7 +93,7 @@ function draw(p5: p5, goofy: () => void) {
         }
     }
     // sun updates before all else or lighting doenst work
-    sun.display(p5, simState.simSpeed); // 5 is the speed
+    sun.display(p5); // 5 is the speed
     for (let i in simState.garden) {
         simState.garden[i].display(p5);
     }
@@ -185,7 +185,6 @@ function homeostasis(p5: p5) {
 
     // temp effector
     simState.temp += (simState.effectors[3] / 600) * simState.simSpeed;
-    //console.log(simState.effectors)
 
     setPoint();
     simState.light = p5.constrain(simState.light, 0, 1);

@@ -15,6 +15,8 @@ const simState: {
     windSpeed: number;
     inClassroom: boolean;
     score: number;
+    daysElapsed: number;
+    desync: number;
 } = $state({
     boxl: 0,
     garden: [],
@@ -29,6 +31,8 @@ const simState: {
     windSpeed: 1,
     inClassroom: false,
     score: 0,
+    daysElapsed: 1,
+    desync: 0,
 });
 
 export { simState };

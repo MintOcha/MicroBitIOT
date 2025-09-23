@@ -51,11 +51,17 @@
         simState.simSpeed = speed;
     });
 
+    socket.on("time", (time) => {
+        simState.desync = time - Date.now();
+    });
+
     // State for simulation speed (using way too many states)
     const simSpeeds = [0, 0.5, 1, 2, 5, 10, 50, 100];
     let simSpeedEnum = $state(2);
     let simSpeed = $derived(simSpeeds[simSpeedEnum]);
     let simSpeedText = $derived(simSpeed === 0 ? "Paused" : `${simSpeed}×`);
+
+    let startTime = Date.now();
 
     let possibleEpilepsy = $state(true);
     let alertOpen = $state(false);
@@ -261,6 +267,7 @@
         <Slider class="my-4" type="single" min={0} max={7} step={1} bind:value={simSpeedEnum} />
     {/if}
 
+    <!-- Epilepsy warning dialog -->
     <AlertDialog.Root
         bind:open={alertOpen}
         onOpenChange={(value: boolean) => {
@@ -306,6 +313,15 @@
             </AlertDialog.Footer>
         </AlertDialog.Content>
     </AlertDialog.Root>
+</div>
+
+<!-- Day Count -->
+<div class="absolute top-4 right-4 max-h-[calc(100vh-2rem)] overflow-y-auto rounded-lg bg-background p-4 shadow-lg">
+    <div class="flex items-center gap-2">
+        <h2 class="text-xl font-semibold tracking-tight">
+            Day {simState.daysElapsed}
+        </h2>
+    </div>
 </div>
 
 <P5 {sketch} />

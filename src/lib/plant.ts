@@ -143,7 +143,6 @@ class plant {
 
     reset(p5: p5) {
         simState.score++;
-        console.log(simState.score);
         this.tiltAngle = p5.radians(p5.random(-180, 180));
         this.health = helth(p5, simState.soilm, simState.temp, simState.light, 1);
         this.growth = 0;

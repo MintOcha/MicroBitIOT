@@ -24,8 +24,12 @@ class SunMoon {
         this.angle2 = 0;
     }
 
-    display(p5: p5, simulationSpeed: number) {
-        this.angle = ((Date.now() / 2000) * simulationSpeed) % (2 * p5.PI);
+    display(p5: p5) {
+        let syncedTime = Date.now() + simState.desync;
+        let prevAngle = this.angle;
+        this.angle = ((syncedTime / 2000) * simState.simSpeed) % (2 * p5.PI);
+        if (this.angle < prevAngle) simState.daysElapsed++;
+
         //print(this.angle)
         // NOTE: when pi is 0 the moon is rising not the sun (expected: sun)
 
