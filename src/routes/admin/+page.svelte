@@ -11,10 +11,14 @@
 
     let showPasswordPrompt = $state(false);
     let showAdminPanel = $state(false);
+    let passwordWrong = $state(false);
     let shiftCount = 0;
     let lastKeyTime = 0;
     let password = $state("");
     let socket: any;
+
+    let weather = $state("auto");
+    let timeOfDay = $state("auto");
 
     const simSpeeds = [0, 0.5, 1, 2, 5, 10, 50, 100];
     let simSpeedEnum = $state(2);
@@ -44,20 +48,30 @@
     }
 
     function submitPassword() {
-        showPasswordPrompt = false;
-        showAdminPanel = true;
-        socket.emit("auth", password, (success: boolean) => {
-            if (success) {
+        console.log("sumitts");
+        socket.emit("auth", password, (response: string) => {
+            console.log("auth response", response);
+            if (response == "success") {
                 showPasswordPrompt = false;
                 showAdminPanel = true;
             } else {
-                alert("Invalid password");
+                passwordWrong = true;
             }
         });
     }
 
     function setWeather(type: string) {
+        weather = type;
         socket.emit("weather", type);
+    }
+
+    function spawnNaturalDisaster(type: string) {
+        socket.emit("naturalDisaster", type);
+    }
+
+    function setTimeOfDay(time: string) {
+        timeOfDay = time;
+        socket.emit("timeOfDay", time);
     }
 
     function setSimSpeed(speed: number) {
@@ -81,6 +95,9 @@
         </DialogHeader>
         <div class="flex flex-col gap-4">
             <Input type="password" bind:value={password} placeholder="Password" onkeydown={(e) => e.key === "Enter" && submitPassword()} />
+            {#if passwordWrong}
+                <p class="text-sm text-destructive">Wrong password, try again.</p>
+            {/if}
             <Button onclick={submitPassword}>Submit</Button>
         </div>
     </DialogContent>
@@ -88,16 +105,33 @@
 
 <!-- Admin Panel -->
 {#if showAdminPanel}
-    <Card class="mx-auto mt-10 w-[400px] shadow-lg">
+    <Card class="mx-auto mt-10 max-w-lg">
         <CardHeader>
             <h2 class="text-xl font-bold">Admin Panel</h2>
         </CardHeader>
         <CardContent class="flex flex-col">
-            <div class="flex flex-wrap gap-2">
-                <Button onclick={() => setWeather("storm")}>Storm</Button>
-                <Button onclick={() => setWeather("rain")}>Rain</Button>
-                <Button onclick={() => setWeather("clear")}>Clear</Button>
-                <Button onclick={() => setWeather("cloudy")}>Cloudy</Button>
+            <h3 class="text-xl font-semibold tracking-tight">Weather</h3>
+            <div class="mt-2 flex flex-wrap gap-2">
+                <Button variant={weather === "auto" ? "default" : "secondary"} onclick={() => setWeather("auto")}>Auto</Button>
+                <Button variant={weather === "storm" ? "default" : "secondary"} onclick={() => setWeather("storm")}>Storm</Button>
+                <Button variant={weather === "rain" ? "default" : "secondary"} onclick={() => setWeather("rain")}>Rain</Button>
+                <Button variant={weather === "clear" ? "default" : "secondary"} onclick={() => setWeather("clear")}>Clear</Button>
+                <Button variant={weather === "cloudy" ? "default" : "secondary"} onclick={() => setWeather("cloudy")}>Cloudy</Button>
+            </div>
+            <h3 class="mt-8 text-xl font-semibold tracking-tight">Natural disasters</h3>
+            <div class="mt-2 flex flex-wrap gap-2">
+                <Button variant="secondary" onclick={() => spawnNaturalDisaster("thunder")}>Random ahh thunder</Button>
+                <Button variant="secondary" onclick={() => spawnNaturalDisaster("tsunami")}>Tsunami</Button>
+                <Button variant="secondary" onclick={() => spawnNaturalDisaster("drought")}>Drought</Button>
+                <Button variant="secondary" onclick={() => spawnNaturalDisaster("heatwave")}>Heatwave</Button>
+            </div>
+            <h3 class="mt-8 text-xl font-semibold tracking-tight">Time of day</h3>
+            <div class="mt-2 flex flex-wrap gap-2">
+                <Button variant={timeOfDay === "auto" ? "default" : "secondary"} onclick={() => setTimeOfDay("auto")}>Auto</Button>
+                <Button variant={timeOfDay === "sunrise" ? "default" : "secondary"} onclick={() => setTimeOfDay("sunrise")}>Sunrise</Button>
+                <Button variant={timeOfDay === "noon" ? "default" : "secondary"} onclick={() => setTimeOfDay("noon")}>Noon</Button>
+                <Button variant={timeOfDay === "sunset" ? "default" : "secondary"} onclick={() => setTimeOfDay("sunset")}>Sunset</Button>
+                <Button variant={timeOfDay === "midnight" ? "default" : "secondary"} onclick={() => setTimeOfDay("midnight")}>Midnight</Button>
             </div>
             <div class="mt-8 flex items-center gap-2">
                 <h3 class="text-xl font-semibold tracking-tight">Simulation speed</h3>
