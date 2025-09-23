@@ -38,11 +38,14 @@
     const socket = io("http://localhost:3000");
     socket.on("connect", () => {
         console.log("Connected to server");
+        console.log(socket.id);
         simState.inClassroom = true;
     });
     socket.on("weather", (weather) => {
         console.log("Received weather update:", weather);
         simState.weather = weather;
+
+        socket.emit("stats", simState.score);
     });
     socket.on("simSpeed", (speed) => {
         simState.simSpeed = speed;
@@ -238,7 +241,7 @@
         <SensorCard
             Icon={Thermometer}
             name="Temperature"
-            value={(simState.temp * 65) / 100}
+            value={simState.temp}
             min={0}
             max={1}
             effectorState={simState.effectors[3] ? "ON" : "OFF"}
@@ -291,7 +294,10 @@
                         <li>Do not play if you are drowsy or fatigued.</li>
                     </ul>
                     <p>If you or any of your relatives have a history of seizures or epilepsy, consult a doctor before playing video games.</p>
-                    <p class = "text-destructive font-bold">By choosing to continue, you acknowledge that you have read and understood this warning, and we are not liable for any damages caused thereafter.</p>
+                    <p class="font-bold text-destructive">
+                        By choosing to continue, you acknowledge that you have read and understood this warning, and we are not liable for any damages
+                        caused thereafter.
+                    </p>
                 </AlertDialog.Description>
             </AlertDialog.Header>
             <AlertDialog.Footer>
