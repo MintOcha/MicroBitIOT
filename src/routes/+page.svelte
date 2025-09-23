@@ -270,6 +270,7 @@
                         <li>Do not play if you are drowsy or fatigued.</li>
                     </ul>
                     <p>If you or any of your relatives have a history of seizures or epilepsy, consult a doctor before playing video games.</p>
+                    <p class = "text-destructive font-bold">By choosing to continue, you acknowledge that you have read and understood this warning, and we are not liable for any damages caused thereafter.</p>
                 </AlertDialog.Description>
             </AlertDialog.Header>
             <AlertDialog.Footer>

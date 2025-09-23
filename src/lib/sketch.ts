@@ -181,6 +181,7 @@ function homeostasis(p5: p5) {
 
     // temp effector
     simState.temp += (simState.effectors[3] / 600) * simState.simSpeed;
+    //console.log(simState.effectors)
 
     setPoint();
     simState.light = p5.constrain(simState.light, 0, 1);
