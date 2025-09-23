@@ -14,7 +14,6 @@ const simState: {
     simSpeed: number;
     windSpeed: number;
     inClassroom: boolean;
-    frameCount: number;
 } = $state({
     boxl: 0,
     garden: [],
@@ -28,7 +27,6 @@ const simState: {
     simSpeed: 1,
     windSpeed: 1,
     inClassroom: false,
-    frameCount: 0,
 });
 
 export { simState };

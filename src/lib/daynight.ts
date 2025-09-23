@@ -25,7 +25,7 @@ class SunMoon {
     }
 
     display(p5: p5, simulationSpeed: number) {
-        this.angle = ((simState.frameCount / 100) * simulationSpeed) % (2 * p5.PI);
+        this.angle = ((Date.now() / 2000) * simulationSpeed) % (2 * p5.PI);
         //print(this.angle)
         // NOTE: when pi is 0 the moon is rising not the sun (expected: sun)
 

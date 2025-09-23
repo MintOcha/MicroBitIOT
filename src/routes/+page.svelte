@@ -44,9 +44,6 @@
         console.log("Received weather update:", weather);
         simState.weather = weather;
     });
-    socket.on("time", (frameCount) => {
-        simState.frameCount = frameCount;
-    });
     socket.on("simSpeed", (speed) => {
         simState.simSpeed = speed;
     });
