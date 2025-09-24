@@ -23,7 +23,7 @@
     import SensorCard from "$lib/components/sensorCard.svelte";
 
     // Icons
-    import { Bluetooth, Sun, Wind, Droplet, Thermometer } from "lucide-svelte";
+    import { Bluetooth, Network, Sun, Wind, Droplet, Thermometer } from "lucide-svelte";
     import ModeToggle from "$lib/components/modeToggle.svelte";
 
     // WebSocket
@@ -40,6 +40,10 @@
         console.log("Connected to server");
         console.log(socket.id);
         simState.inClassroom = true;
+    });
+    socket.on("disconnect", () => {
+        console.log("Disconnected from server");
+        simState.inClassroom = false;
     });
     socket.on("weather", (weather) => {
         console.log("Received weather update:", weather);
@@ -157,9 +161,11 @@
     // Bluetooth connection status indicator
     const bluetoothStatusClasses: Record<string, string> = {
         CONNECTED: "bg-green-200 dark:bg-green-700",
-        CONNECTING: "bg-yellow-200 dark:bg-yellow-700",
+        CONNECTING: "bg-amber-200 dark:bg-amber-700",
     };
     let bluetoothStatusClass = $derived(bluetoothStatusClasses[connectionStatus] ?? "bg-red-200 dark:bg-red-700");
+
+    let socketStatusClass = $derived(simState.inClassroom ? "bg-green-200 dark:bg-green-700" : "bg-red-200 dark:bg-red-700");
 
     // Utility function to convert UPPERCASE_WITH_UNDERSCORES to Sentence case
     const toSentenceCase = (str: string): string =>
@@ -213,12 +219,20 @@
     <!-- Bluetooth connection controls -->
     <div class={"mt-4 flex max-w-full items-center justify-between rounded-full px-2 py-2 " + bluetoothStatusClass}>
         <div class="flex items-center justify-start">
-            <Bluetooth class="m-2 size-5 rounded-full text-secondary-foreground" />
+            <Bluetooth class="m-2 size-5 text-secondary-foreground" />
             <p class="max-w-36 truncate text-sm leading-none font-medium">
                 {toSentenceCase(connectionStatus == "SUPPORT_NOT_KNOWN" ? (connectionStatus = "CONNECTED") : connectionStatus)}
             </p>
         </div>
         <Button class="rounded-full" onclick={connect}>Connect</Button>
+    </div>
+
+    <!-- Communist server status -->
+    <div class={"mt-2 flex max-w-full items-center justify-between rounded-full px-2 py-2 " + socketStatusClass}>
+        <div class="flex items-center justify-start">
+            <Network class="m-2 size-5 text-secondary-foreground" />
+            <p class="max-w-36 truncate text-sm leading-none font-medium">{simState.inClassroom ? "Connected" : "Disconnected"}</p>
+        </div>
     </div>
 
     <!-- Sensor readings display -->
@@ -342,6 +356,25 @@
     <Badge class={growingBadgeClass + " mt-2 text-sm text-white"}>
         {String(simState.growing)}
     </Badge>
+
+    <h3 class="mt-8 text-xl font-semibold tracking-tight">Economy</h3>
+    <div class="mt-2 space-y-1 text-sm">
+        <div class="flex justify-between"><span>Money:</span><span class="font-mono">Yay</span></div>
+        <div class="flex justify-between"><span>Total spent:</span><span class="font-mono">Yay</span></div>
+        <div class="flex justify-between"><span>Avg cost/plant:</span><span class="font-mono">Yay</span></div>
+    </div>
+    <div class="mt-4">
+        <p class="mb-1 text-sm font-semibold">Top plant costs</p>
+        <ul class="max-h-40 space-y-1 overflow-y-auto pr-1 text-xs">
+            <li class="flex justify-between rounded bg-muted px-2 py-1">
+                <span># </span>
+                <span class="font-mono">
+                    1.29
+                    <span class="text-green-600 dark:text-green-400">→ +Bay</span>
+                </span>
+            </li>
+        </ul>
+    </div>
 </div>
 
 <P5 {sketch} />
