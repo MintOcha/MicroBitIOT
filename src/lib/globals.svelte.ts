@@ -25,7 +25,7 @@ const simState: {
     temp: 0,
     humidity: 0,
     effectors: [0, 0, 0, 0], // light, hum, moisture, temp
-    weather: "clear", // toggle btw sunny and rainy, storm
+    weather: "clear", // toggle btw sunny and rainy, storm, flood
     bgcolor: undefined,
     simSpeed: 1,
     windSpeed: 1,

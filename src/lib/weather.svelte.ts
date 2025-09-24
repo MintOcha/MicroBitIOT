@@ -80,6 +80,7 @@ class cloud {
     getTargetColor(state: string) {
         if (state === "rainy") return { r: 80, g: 80, b: 80, a: 220 };
         if (state === "storm") return { r: 50, g: 50, b: 50, a: 230 };
+        if (state === "flood") return { r: 70, g: 70, b: 90, a: 230 };
         return { r: 255, g: 255, b: 255, a: 200 }; // sunny/clear base
     }
 
@@ -193,9 +194,9 @@ class cloud {
         this.bolts = this.bolts.filter((b) => b.life > 0);
 
         // Rain generation
-        if (this.weatherState === "rainy" || this.weatherState === "storm") {
+        if (this.weatherState === "rainy" || this.weatherState === "storm" || this.weatherState === "flood") {
             let dropCount = (this.weatherState === "storm" ? 8 : 4) * simState.simSpeed;
-            dropCount = 1
+            if(this.weatherState != "flood") dropCount = 1
             for (let i = 0; i < dropCount; i++) {
                 this.spawnRaindrop(p5);
             }
@@ -299,7 +300,7 @@ class cloud {
         }
 
         // Draw rain particles
-        if (this.weatherState === "rainy" || this.weatherState === "storm") {
+        if (this.weatherState === "rainy" || this.weatherState === "storm" || this.weatherState === "flood") {
             p5.stroke(100, 150, 255, 200 * this.rainOpacity * this.boundaryFade);
             p5.strokeWeight(2);
             for (let drop of this.raindrops) {

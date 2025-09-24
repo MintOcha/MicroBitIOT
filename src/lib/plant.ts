@@ -13,8 +13,10 @@ class plant {
     growthFactor: number;
     windPhase: number;
     windStrength: number;
+    timeAlive: number;
 
     constructor(p5: p5, posx: number, posz: number, id: number) {
+        this.timeAlive = Date.now();
         this.posx = posx;
         this.posz = posz;
         this.id = id;
@@ -142,7 +144,10 @@ class plant {
     }
 
     reset(p5: p5) {
-        simState.score++;
+        this.timeAlive = Date.now() - this.timeAlive;
+        this.timeAlive *= simState.simSpeed / 1000;
+        simState.score+= p5.max((p5.floor(this.timeAlive) - 300 * simState.simSpeed) * 0.5, 0);
+        console.log(simState.score);
         this.tiltAngle = p5.radians(p5.random(-180, 180));
         this.health = helth(p5, simState.soilm, simState.temp, simState.light, 1);
         this.growth = 0;
@@ -157,6 +162,7 @@ class plant {
         this.windStrength = p5.random(0.8, 1.2); // sway variation
     }
 }
+
 
 // --- Safe helth function ---
 function helth(p5: p5, soilm: number, temp: number, light: number, safety = 1) {

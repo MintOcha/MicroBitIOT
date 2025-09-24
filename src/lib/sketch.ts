@@ -22,6 +22,23 @@ const WEATHERS = [
     "clear",
     "clear",
     "clear",
+    "sunny",
+    "sunny",
+    "sunny",
+    "sunny",
+    "sunny",
+    "rainy",
+    "rainy",
+    "rainy",
+    "rainy",
+    "storm",
+    "storm",
+    "clear",
+    "clear",
+    "clear",
+    "clear",
+    "clear",
+    "flood",
 ];
 let soil: Image;
 let soily: number;
@@ -30,6 +47,14 @@ let cloudsNum: number = 20;
 let sun: SunMoon;
 let timeOfDay: number;
 let lastCheckTime: number;
+
+// --- Flood state tracking ---
+let floodLevel = 0; // current water height above ground
+const FLOOD_RISE_SPEED = 2; // pixels per frame per simSpeed
+const FLOOD_FALL_SPEED = 1; // pixels per frame per simSpeed (slower than rise)
+const FLOOD_MAX_LEVEL = 40; // max water height above ground
+const FLOOD_SAFE_DECREASE = 0.002; // decrease per frame per simSpeed
+let floodActive = false; // tracks if flood is ongoing
 
 function preload(p5: p5) {
     soil = p5.loadImage("/assets/soil.png");
@@ -68,18 +93,24 @@ function draw(p5: p5, goofy: () => void) {
     p5.background(simState.bgcolor ? simState.bgcolor : p5.color(0));
 
     timeOfDay = (sun.angle * 180) / p5.PI;
-    //print(timeOfDay)
-    //print([mycamera.eyeX, mycamera.eyeY, mycamera.eyeZ])
-
-    // Set up the orthographic projection
-    //ortho();
     simState.boxl = p5.width / 8;
-
-    // Position the camera
-    //camera(200 * cos(frameCount / 400) , -100, 250 * sin(frameCount / 400), 0, 0, 0, 0, 1, 0);
-    //camera(0, 0, -100, 0, 0, 0, 0, 1, 0)
     p5.orbitControl();
 
+    // --- Flood logic ---
+    if (simState.weather === "flood") {
+        floodActive = true;
+        floodLevel = Math.min(floodLevel + FLOOD_RISE_SPEED * simState.simSpeed, FLOOD_MAX_LEVEL);
+        // Lower plant safety for all plants during flood
+        for (const plantObj of simState.garden) {
+            plantObj.safe = Math.max(plantObj.safe - FLOOD_SAFE_DECREASE * simState.simSpeed, 0);
+        }
+    } else if (floodActive) {
+        // Flood recedes gradually only after weather changes
+        floodLevel = Math.max(floodLevel - FLOOD_FALL_SPEED * simState.simSpeed, 0);
+        if (floodLevel === 0) floodActive = false;
+    }
+
+    // --- Draw ground tiles ---
     for (let i = -2; i <= 2; i++) {
         for (let j = -2; j <= 2; j++) {
             p5.push();
@@ -89,31 +120,40 @@ function draw(p5: p5, goofy: () => void) {
             p5.noStroke();
             p5.texture(soil);
             p5.box(simState.boxl, simState.boxl / 3, simState.boxl);
+
+            // --- Draw flood water above ground if flooding ---
+            if (floodLevel > 0) {
+                p5.push();
+                p5.translate(0, -floodLevel, 0);
+                p5.fill(80, 180, 255, 180); // semi-transparent blue
+                p5.noStroke();
+                p5.box(simState.boxl, floodLevel, simState.boxl);
+                p5.pop();
+            }
             p5.pop();
         }
     }
-    // sun updates before all else or lighting doenst work
-    sun.display(p5); // 5 is the speed
-    for (let i in simState.garden) {
-        simState.garden[i].display(p5);
+
+    sun.display(p5);
+
+    for (const plantObj of simState.garden) {
+        plantObj.display(p5);
     }
-    for (let i in clouds) {
-        clouds[i].display(p5);
-        clouds[i].move(p5);
-        clouds[i].update(p5, simState.weather);
+    for (const cloudObj of clouds) {
+        cloudObj.display(p5);
+        cloudObj.move(p5);
+        cloudObj.update(p5, simState.weather);
     }
 
-    // update stats
     homeostasis(p5);
 
-    // Draw some boxes to demonstrate the lack of perspective
     if (!simState.inClassroom) {
         maybeChangeWeather(p5);
     }
 }
 
 function keyPressed(p5: p5) {
-    simState.weather = "storm";
+    simState.weather = "flood";
 }
 
 function maybeChangeWeather(p5: p5) {
@@ -171,6 +211,12 @@ function homeostasis(p5: p5) {
     if (simState.weather === "rainy" || simState.weather === "storm") {
         simState.soilm += 0.001 * simState.simSpeed;
         simState.humidity += 0.003 * simState.simSpeed;
+    }
+
+    if(simState.weather === "flood"){
+        simState.soilm += 0.004 * simState.simSpeed;
+        simState.humidity += 0.004 * simState.simSpeed;
+        simState.temp -= 0.0005 * simState.simSpeed; // slight cooling effect
     }
 
     // light effector
