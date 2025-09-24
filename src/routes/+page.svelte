@@ -34,7 +34,7 @@
     let connectionStatus = $state("DISCONNECTED");
     let ping: NodeJS.Timeout | null = null; // for sending data to microbit & clear interval
 
-    // ws connection
+    // WebSocket connection to communist server
     const socket = io("http://localhost:3000");
     socket.on("connect", () => {
         console.log("Connected to server");
@@ -50,7 +50,6 @@
     socket.on("simSpeed", (speed) => {
         simState.simSpeed = speed;
     });
-
     socket.on("time", (time) => {
         simState.desync = time - Date.now();
     });
@@ -61,12 +60,12 @@
     let simSpeed = $derived(simSpeeds[simSpeedEnum]);
     let simSpeedText = $derived(simSpeed === 0 ? "Paused" : `${simSpeed}×`);
 
-    let startTime = Date.now();
-
+    // State for epilepsy warning alert
     let possibleEpilepsy = $state(true);
     let alertOpen = $state(false);
 
     $effect(() => {
+        // Whenever slider changes, update simSpeed and show alert if it possibly causes epilepsy
         simState.simSpeed = simSpeed;
         if (simSpeed >= 50 && !alertOpen && possibleEpilepsy) {
             alertOpen = true;
@@ -75,12 +74,13 @@
     });
 
     function alertConfirmed() {
+        // User confirmed they don't have epilepsy
         possibleEpilepsy = false;
         alertOpen = false;
         simSpeedEnum = 6;
     }
 
-    // Dropdown for simulated environment
+    // Dropdown for simulated environment (probably useless)
     const simulatedEnvironments = [
         { value: "farm", label: "Corn farm" },
         { value: "bus", label: "Fleet of public buses (TODO)" },
@@ -89,9 +89,9 @@
     let selectedEnvironment = $state("");
     const triggerContent = $derived(simulatedEnvironments.find((f) => f.value === selectedEnvironment)?.label ?? "Select a simulated environment");
 
-    // Functions for BLE
+    // Functions for BLE connection to micro:bit
     async function connect() {
-        // Connect to micro:bit via BLE
+        // Start the connection
         connection = createWebBluetoothConnection();
         connection.addEventListener("status", (event: ConnectionStatusEvent) => {
             connectionStatus = event.status;
@@ -101,7 +101,7 @@
                 ping = null;
             } else if (event.status === "CONNECTED") {
                 ping = setInterval(() => {
-                    goofy();
+                    writeSensorReadings();
                 }, 500);
             }
         });
@@ -144,40 +144,49 @@
             .catch((e) => console.error(`Write error: ${e.error}`));
     }
 
-    function sendSensorReadings(values: number[]) {
+    function writeValues(values: number[]) {
         // Send some numbers to micro:bit
         write(values.map((v) => Math.round(v)).join(";"));
     }
 
-    function goofy() {
-        // Send simulated sensor readings to micro:bit
-        sendSensorReadings([simState.light * 100, simState.humidity * 100, simState.soilm * 100, simState.temp * 100]);
+    function writeSensorReadings() {
+        // Send sensor readings to micro:bit
+        writeValues([simState.light * 100, simState.humidity * 100, simState.soilm * 100, simState.temp * 100]);
     }
 
-    // Convert UPPERCASE_WITH_UNDERSCORES to Sentence case
+    // Bluetooth connection status indicator
+    const bluetoothStatusClasses: Record<string, string> = {
+        CONNECTED: "bg-green-200 dark:bg-green-700",
+        CONNECTING: "bg-yellow-200 dark:bg-yellow-700",
+    };
+    let bluetoothStatusClass = $derived(bluetoothStatusClasses[connectionStatus] ?? "bg-red-200 dark:bg-red-700");
+
+    // Utility function to convert UPPERCASE_WITH_UNDERSCORES to Sentence case
     const toSentenceCase = (str: string): string =>
         str
             .toLowerCase()
             .replace(/_/g, " ")
             .replace(/^(\w)(.*)/, (_, first, rest) => first.toUpperCase() + rest);
 
-    const sketch: Sketch = (p5: p5) => {
-        p5.preload = () => preload(p5);
-        p5.setup = () => setup(p5);
-        p5.draw = () => draw(p5, goofy);
-        p5.windowResized = () => windowResized(p5);
-    };
-
-    const onwheel = (event: WheelEvent) => event.stopPropagation();
-
-    const growingRateColors = {
+    const growingRateClasses: Record<string, string> = {
         growing: "bg-green-500",
         "not growing": "bg-yellow-500",
         wilting: "bg-red-500",
         "growing fast": "bg-green-500",
         "growing slowly": "bg-green-500",
     };
-    let growingBadgeClass = $derived(growingRateColors[simState.growing]);
+    let growingBadgeClass = $derived(growingRateClasses[simState.growing]);
+
+    // Prevent scrolling the sketch when mouse is over the control panel
+    const onwheel = (event: WheelEvent) => event.stopPropagation();
+
+    // p5.js sketch
+    const sketch: Sketch = (p5: p5) => {
+        p5.preload = () => preload(p5);
+        p5.setup = () => setup(p5);
+        p5.draw = () => draw(p5, writeSensorReadings);
+        p5.windowResized = () => windowResized(p5);
+    };
 </script>
 
 <div class="absolute top-4 left-4 max-h-[calc(100vh-2rem)] w-sm overflow-y-auto rounded-lg bg-background p-4 shadow-lg" {onwheel}>
@@ -201,18 +210,8 @@
         <ModeToggle></ModeToggle>
     </div>
 
-    <!-- Growing state indicator -->
-
     <!-- Bluetooth connection controls -->
-    <div
-        class="mt-4 flex max-w-full items-center justify-between rounded-full px-2 py-2"
-        class:bg-red-200={connectionStatus !== "CONNECTED"}
-        class:dark:bg-red-700={connectionStatus !== "CONNECTED"}
-        class:bg-green-200={connectionStatus === "CONNECTED"}
-        class:dark:bg-green-700={connectionStatus === "CONNECTED"}
-        class:bg-yellow-200={connectionStatus === "CONNECTING"}
-        class:dark:bg-yellow-700={connectionStatus === "CONNECTING"}
-    >
+    <div class={"mt-4 flex max-w-full items-center justify-between rounded-full px-2 py-2 " + bluetoothStatusClass}>
         <div class="flex items-center justify-start">
             <Bluetooth class="m-2 size-5 rounded-full text-secondary-foreground" />
             <p class="max-w-36 truncate text-sm leading-none font-medium">

@@ -162,7 +162,6 @@ function draw(p5: p5, goofy: () => void) {
     } else if (avggrowth < -0.1) {
         simState.growing = "wilting";
     }
-    console.log(simState.growing);
 
     homeostasis(p5);
 
