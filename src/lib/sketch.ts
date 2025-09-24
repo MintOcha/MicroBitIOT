@@ -4,6 +4,7 @@ import { SunMoon } from "$lib/daynight";
 import { cloud } from "$lib/weather.svelte";
 import { simState } from "$lib/globals.svelte";
 import type { Image } from "p5";
+import { effectors } from "$lib/effectors";
 
 const WEATHERS = [
     "sunny",
@@ -80,6 +81,7 @@ let sun: SunMoon;
 let timeOfDay: number;
 let lastCheckTime: number;
 let growing: boolean = false;
+let effectorsObj: any;
 
 // --- Flood state tracking ---
 let floodLevel = 0; // current water height above ground
@@ -97,7 +99,7 @@ function preload(p5: p5) {
 function setup(p5: p5) {
     p5.createCanvas(p5.windowWidth, p5.windowHeight, p5.WEBGL);
     p5.frameRate(60);
-
+    effectorsObj = new effectors(p5);
     simState.boxl = p5.width / 8;
     simState.soilm = 0;
     simState.light = 0;
@@ -168,7 +170,8 @@ function draw(p5: p5, goofy: () => void) {
     }
 
     sun.display(p5);
-
+    effectorsObj.update(p5);
+    effectorsObj.display(p5);
     for (const plantObj of simState.garden) {
         plantObj.display(p5);
     }
