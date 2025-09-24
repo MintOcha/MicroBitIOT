@@ -11,6 +11,7 @@ class SunMoon {
     moony: number;
     angle: number;
     angle2: number;
+    prevSyncedTime: number;
 
     constructor(Size: number, Brightness: number, OrbitRadius: number) {
         this.size = Size;
@@ -22,13 +23,19 @@ class SunMoon {
         this.moony = 0;
         this.angle = 0;
         this.angle2 = 0;
+        this.prevSyncedTime = Date.now() + simState.desync;
     }
 
     display(p5: p5) {
         let syncedTime = Date.now() + simState.desync;
         let prevAngle = this.angle;
         this.angle = ((syncedTime / 2000) * simState.simSpeed) % (2 * p5.PI);
-        if (this.angle < prevAngle) simState.daysElapsed++;
+        if (this.angle < prevAngle) {
+            simState.timeElapsed = syncedTime - this.prevSyncedTime;
+            simState.daysElapsed++;
+            this.prevSyncedTime = syncedTime;
+            //console.log(simState.timeElapsed / 1000)
+        }
 
         //print(this.angle)
         // NOTE: when pi is 0 the moon is rising not the sun (expected: sun)

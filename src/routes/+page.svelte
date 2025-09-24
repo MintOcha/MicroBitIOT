@@ -169,6 +169,15 @@
     };
 
     const onwheel = (event: WheelEvent) => event.stopPropagation();
+
+    const growingRateColors = {
+        growing: "bg-green-500",
+        "not growing": "bg-yellow-500",
+        wilting: "bg-red-500",
+        "growing fast": "bg-green-500",
+        "growing slowly": "bg-green-500",
+    };
+    let growingBadgeClass = $derived(growingRateColors[simState.growing]);
 </script>
 
 <div class="absolute top-4 left-4 max-h-[calc(100vh-2rem)] w-sm overflow-y-auto rounded-lg bg-background p-4 shadow-lg" {onwheel}>
@@ -191,6 +200,8 @@
         </Select.Root>
         <ModeToggle></ModeToggle>
     </div>
+
+    <!-- Growing state indicator -->
 
     <!-- Bluetooth connection controls -->
     <div
@@ -265,6 +276,11 @@
             <Badge variant="secondary">{simSpeedText}</Badge>
         </div>
         <Slider class="my-4" type="single" min={0} max={7} step={1} bind:value={simSpeedEnum} />
+
+        <!-- Seconds per day display -->
+        <div class="mt-2 text-sm text-muted-foreground">
+            Seconds per day: {12.5 / simSpeed}
+        </div>
     {/if}
 
     <!-- Epilepsy warning dialog -->
@@ -316,12 +332,17 @@
 </div>
 
 <!-- Day Count -->
-<div class="absolute top-4 right-4 max-h-[calc(100vh-2rem)] overflow-y-auto rounded-lg bg-background p-4 shadow-lg">
+<div class="absolute top-4 right-4 max-h-[calc(100vh-2rem)] w-sm overflow-y-auto rounded-lg bg-background p-4 shadow-lg" {onwheel}>
     <div class="flex items-center gap-2">
         <h2 class="text-xl font-semibold tracking-tight">
             Day {simState.daysElapsed}
         </h2>
     </div>
+
+    <h3 class="mt-8 text-xl font-semibold tracking-tight">Growth rate</h3>
+    <Badge class={growingBadgeClass + " mt-2 text-sm text-white"}>
+        {String(simState.growing)}
+    </Badge>
 </div>
 
 <P5 {sketch} />

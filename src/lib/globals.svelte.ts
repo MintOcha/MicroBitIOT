@@ -16,7 +16,9 @@ const simState: {
     inClassroom: boolean;
     score: number;
     daysElapsed: number;
+    growing: string;
     desync: number;
+    timeElapsed: number;
 } = $state({
     boxl: 0,
     garden: [],
@@ -33,6 +35,8 @@ const simState: {
     score: 0,
     daysElapsed: 1,
     desync: 0,
+    growing: "not growing",
+    timeElapsed: 0,
 });
 
 export { simState };

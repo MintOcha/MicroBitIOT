@@ -14,13 +14,14 @@ class plant {
     windPhase: number;
     windStrength: number;
     timeAlive: number;
+    growthRate: number;
 
     constructor(p5: p5, posx: number, posz: number, id: number) {
         this.timeAlive = Date.now();
         this.posx = posx;
         this.posz = posz;
         this.id = id;
-
+        this.growthRate = 0;
         this.tiltAngle = p5.radians(p5.random(-180, 180));
         this.health = helth(p5, simState.soilm, simState.temp, simState.light, 1);
         this.growth = 0;
@@ -45,8 +46,8 @@ class plant {
         this.health = helth(p5, simState.soilm, simState.temp, simState.light, this.safe);
 
         // 🌱 Growth rate modified by plant’s unique growthFactor
-        let growthRate = p5.map(this.health, 0, 1, -0.0005, 0.00028) * simState.simSpeed * this.growthFactor;
-        this.growth = p5.constrain(this.growth + growthRate, 0, 1);
+        this.growthRate = p5.map(this.health, 0, 1, -0.0005, 0.00028) * simState.simSpeed * this.growthFactor;
+        this.growth = p5.constrain(this.growth + this.growthRate, 0, 1);
 
         this.stemHeight = (p5.height / 10) * this.growth;
 
@@ -146,8 +147,8 @@ class plant {
     reset(p5: p5) {
         this.timeAlive = Date.now() - this.timeAlive;
         this.timeAlive *= simState.simSpeed / 1000;
-        simState.score+= p5.max((p5.floor(this.timeAlive) - 300 * simState.simSpeed) * 0.5, 0);
-        console.log(simState.score);
+        simState.score += p5.max((p5.floor(this.timeAlive) - 300 * simState.simSpeed) * 0.5, 0);
+        console.log(simState.score); //please change for different scoring system
         this.tiltAngle = p5.radians(p5.random(-180, 180));
         this.health = helth(p5, simState.soilm, simState.temp, simState.light, 1);
         this.growth = 0;
@@ -162,7 +163,6 @@ class plant {
         this.windStrength = p5.random(0.8, 1.2); // sway variation
     }
 }
-
 
 // --- Safe helth function ---
 function helth(p5: p5, soilm: number, temp: number, light: number, safety = 1) {

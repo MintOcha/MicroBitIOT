@@ -47,6 +47,7 @@ let cloudsNum: number = 20;
 let sun: SunMoon;
 let timeOfDay: number;
 let lastCheckTime: number;
+let growing: boolean = false;
 
 // --- Flood state tracking ---
 let floodLevel = 0; // current water height above ground
@@ -144,6 +145,24 @@ function draw(p5: p5, goofy: () => void) {
         cloudObj.move(p5);
         cloudObj.update(p5, simState.weather);
     }
+    let avggrowth = 0;
+    for (const plantObj of simState.garden) {
+        avggrowth += plantObj.growthRate;
+    }
+    avggrowth /= simState.garden.length;
+
+    avggrowth = p5.map(avggrowth, -0.0005, 0.00028, -1, 1);
+
+    if (avggrowth > 0.5) {
+        simState.growing = "growing fast";
+    } else if (avggrowth > 0.1) {
+        simState.growing = "growing slowly";
+    } else if (avggrowth > -0.1) {
+        simState.growing = "not growing";
+    } else if (avggrowth < -0.1) {
+        simState.growing = "wilting";
+    }
+    console.log(simState.growing);
 
     homeostasis(p5);
 
@@ -213,7 +232,7 @@ function homeostasis(p5: p5) {
         simState.humidity += 0.003 * simState.simSpeed;
     }
 
-    if(simState.weather === "flood"){
+    if (simState.weather === "flood") {
         simState.soilm += 0.004 * simState.simSpeed;
         simState.humidity += 0.004 * simState.simSpeed;
         simState.temp -= 0.0005 * simState.simSpeed; // slight cooling effect

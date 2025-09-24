@@ -196,7 +196,7 @@ class cloud {
         // Rain generation
         if (this.weatherState === "rainy" || this.weatherState === "storm" || this.weatherState === "flood") {
             let dropCount = (this.weatherState === "storm" ? 8 : 4) * simState.simSpeed;
-            if(this.weatherState != "flood") dropCount = 1
+            if (this.weatherState != "flood") dropCount = 1;
             for (let i = 0; i < dropCount; i++) {
                 this.spawnRaindrop(p5);
             }
