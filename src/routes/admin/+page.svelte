@@ -70,10 +70,6 @@
         socket.emit("weather", type);
     }
 
-    function spawnNaturalDisaster(type: string) {
-        socket.emit("naturalDisaster", type);
-    }
-
     function setTimeOfDay(time: string) {
         timeOfDay = time;
         socket.emit("timeOfDay", time);
@@ -126,13 +122,9 @@
                 <Button variant={weather === "rain" ? "default" : "secondary"} onclick={() => setWeather("rain")}>Rain</Button>
                 <Button variant={weather === "clear" ? "default" : "secondary"} onclick={() => setWeather("clear")}>Clear</Button>
                 <Button variant={weather === "cloudy" ? "default" : "secondary"} onclick={() => setWeather("cloudy")}>Cloudy</Button>
-            </div>
-            <h3 class="mt-8 text-xl font-semibold tracking-tight">Natural disasters</h3>
-            <div class="mt-2 flex flex-wrap gap-2">
-                <Button variant="secondary" onclick={() => spawnNaturalDisaster("thunder")}>Random ahh thunder</Button>
-                <Button variant="secondary" onclick={() => spawnNaturalDisaster("tsunami")}>Tsunami</Button>
-                <Button variant="secondary" onclick={() => spawnNaturalDisaster("drought")}>Drought</Button>
-                <Button variant="secondary" onclick={() => spawnNaturalDisaster("heatwave")}>Heatwave</Button>
+                <Button variant={weather === "flood" ? "default" : "secondary"} onclick={() => setWeather("flood")}>Flood</Button>
+                <Button variant={weather === "drought" ? "default" : "secondary"} onclick={() => setWeather("drought")}>Drought</Button>
+                <Button variant={weather === "heatwave" ? "default" : "secondary"} onclick={() => setWeather("heatwave")}>Heatwave</Button>
             </div>
             <h3 class="mt-8 text-xl font-semibold tracking-tight">Time of day</h3>
             <div class="mt-2 flex flex-wrap gap-2">

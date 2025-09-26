@@ -23,9 +23,6 @@
         isDelta: boolean;
     } = $props();
 
-    // Format number with 2 decimal places
-    const twoDp = (num: number) => num.toFixed(2);
-
     function componentText(num: number) {
         let signChar: string;
         if (num == 0 || !isDelta) {
@@ -35,7 +32,7 @@
         } else {
             signChar = "−";
         }
-        return `${signChar}${twoDp(num)}`;
+        return `${signChar}${num.toFixed(2)}`;
     }
 </script>
 
@@ -46,7 +43,7 @@
                 <Icon class="size-5"></Icon>
                 <p>{name}</p>
             </div>
-            <p class="rounded-md bg-accent px-2.5 py-1.5 font-mono">{twoDp(value)}</p>
+            <p class="rounded-md bg-accent px-2.5 py-1.5 font-mono">{value.toFixed(2)}</p>
         </Card.Title>
         <div class="mt-2 h-1.5 w-full rounded-full bg-muted">
             <div class="h-1.5 rounded-full bg-primary" style="width: {((value - min) / (max - min)) * 100}%"></div>
