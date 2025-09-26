@@ -32,7 +32,7 @@ const simState: {
     simSpeed: 1,
     windSpeed: 1,
     inClassroom: false,
-    score: 0,
+    score: 500,
     daysElapsed: 1,
     desync: 0,
     growing: "not growing",

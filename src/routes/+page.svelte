@@ -358,7 +358,7 @@
 
     <h3 class="mt-8 text-xl font-semibold tracking-tight">Economy</h3>
     <div class="mt-2 space-y-1 text-sm">
-        <div class="flex justify-between"><span>Money:</span><span class="font-mono">Yay</span></div>
+        <div class="flex justify-between"><span>Money: </span><span class="font-mono">{simState.score.toFixed(2)}</span></div>
         <div class="flex justify-between"><span>Total spent:</span><span class="font-mono">Yay</span></div>
         <div class="flex justify-between"><span>Avg cost/plant:</span><span class="font-mono">Yay</span></div>
     </div>
