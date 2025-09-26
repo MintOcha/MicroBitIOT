@@ -278,7 +278,7 @@ function homeostasis(p5: p5) {
 if(simState.score > 0){
     // light effector
     simState.light += simState.effectors[0] / 100;
-    simState.score -= simState.effectors[0] * simState.simSpeed / p5.frameRate() * 3; // using light costs 3 per second, scaled to simSpeed
+    simState.score -= (simState.effectors[0] / 100) * simState.simSpeed / p5.frameRate() * 3; // using light costs 3 per second, scaled to simSpeed
 
     // dehumidifier effector
     simState.humidity -= (simState.effectors[1] / 200) * simState.simSpeed; // dehumidifier effector
