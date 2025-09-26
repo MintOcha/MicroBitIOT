@@ -19,7 +19,8 @@
 
     let weather = $state("auto");
     let timeOfDay = $state("auto");
-    let studentsCount = $state(0);
+
+    let leaderboard: { id: string; score: number }[] = $state([]);
 
     const simSpeeds = [0, 0.5, 1, 2, 5, 10, 50, 100];
     let simSpeedEnum = $state(2);
@@ -32,8 +33,9 @@
         socket = io("ws://localhost:3000"); // change to your backend
         window.addEventListener("keydown", handleKeyDown);
 
-        socket.on("students", (count: number) => {
-            studentsCount = count;
+        socket.on("leaderboard", (studentsList: { id: string; score: number }[]) => {
+            leaderboard = studentsList;
+            console.log(leaderboard);
         });
     });
 
@@ -66,6 +68,15 @@
             }
         });
     }
+    function clearInput() {
+        value = "";
+        amount = 1;
+    }
+    function sendMoney(id: string, money: number) {
+      clearInput();
+      console.log("send money", { id, money });
+        socket.emit("sendMoney", { id, money });
+    }
 
     function setWeather(type: string) {
         weather = type;
@@ -84,6 +95,37 @@
     $effect(() => {
         setSimSpeed(simSpeed);
     });
+    import CheckIcon from "@lucide/svelte/icons/check";
+    import ChevronsUpDownIcon from "@lucide/svelte/icons/chevrons-up-down";
+    import { tick } from "svelte";
+    import * as Command from "$lib/components/ui/command/index.js";
+    import * as Popover from "$lib/components/ui/popover/index.js";
+    import { cn } from "$lib/utils.js";
+
+    const studList: { value: string; label: string }[] = [];
+   $effect(() => {
+    studList.length = 0;
+    for (let i of leaderboard) {
+        studList.push({ value: i.id, label: `${i.id} (${i.score.toFixed(2)})` });
+    }
+
+   })
+    let open = $state(false);
+    let value = $state("");
+    let amount : number = $state(1);
+    let triggerRef = $state<HTMLButtonElement>(null!);
+
+    const selectedValue = $state(studList.find((f) => f.value === value)?.label);
+
+    // We want to refocus the trigger button when the user selects
+    // an item from the list so users can continue navigating the
+    // rest of the form with the keyboard.
+    function closeAndFocusTrigger() {
+        open = false;
+        tick().then(() => {
+            triggerRef.focus();
+        });
+    }
 </script>
 
 {#if !showAdminPanel}
@@ -113,7 +155,7 @@
             <h2 class="text-xl font-bold">Admin Panel</h2>
             <Badge variant="secondary" class="mt-2 flex items-center gap-2"
                 ><div class="size-2 rounded-full bg-green-500"></div>
-                {studentsCount} student{studentsCount !== 1 ? "s" : ""} online</Badge
+                {leaderboard.length} student{leaderboard.length !== 1 ? "s" : ""} online</Badge
             >
         </CardHeader>
         <CardContent class="flex flex-col">
@@ -125,19 +167,57 @@
                     >
                 {/each}
             </div>
-            <h3 class="mt-8 text-xl font-semibold tracking-tight">Time of day</h3>
-            <div class="mt-2 flex flex-wrap gap-2">
-                <Button variant={timeOfDay === "auto" ? "default" : "secondary"} onclick={() => setTimeOfDay("auto")}>Auto</Button>
-                <Button variant={timeOfDay === "sunrise" ? "default" : "secondary"} onclick={() => setTimeOfDay("sunrise")}>Sunrise</Button>
-                <Button variant={timeOfDay === "noon" ? "default" : "secondary"} onclick={() => setTimeOfDay("noon")}>Noon</Button>
-                <Button variant={timeOfDay === "sunset" ? "default" : "secondary"} onclick={() => setTimeOfDay("sunset")}>Sunset</Button>
-                <Button variant={timeOfDay === "midnight" ? "default" : "secondary"} onclick={() => setTimeOfDay("midnight")}>Midnight</Button>
-            </div>
+
+            
             <div class="mt-8 flex items-center gap-2">
                 <h3 class="text-xl font-semibold tracking-tight">Simulation speed</h3>
                 <Badge variant="secondary">{simSpeedText}</Badge>
             </div>
             <Slider class="my-4" type="single" min={0} max={5} step={1} bind:value={simSpeedEnum} />
+            <div class="mt-8 flex items-center gap-2">
+                <h3 class="text-xl font-semibold tracking-tight">Miscellaneous</h3>
+            </div>
+
+                <Popover.Root  bind:open>
+                    <Popover.Trigger bind:ref={triggerRef} class = "mt-2" >
+                        {#snippet child({ props })}
+                            <Button variant="outline" class="w-[200px] justify-between" {...props} role="combobox" aria-expanded={open}>
+                                {value ? value : "Select user..."}
+                                <ChevronsUpDownIcon class="ml-2 size-4 shrink-0 opacity-50" />
+                            </Button>
+                        {/snippet}
+                    </Popover.Trigger>
+                    <Popover.Content class="w-[200px] p-0">
+                        <Command.Root>
+                            <Command.Input placeholder="Search users..." />
+                            <Command.List>
+                                <Command.Empty>No users found.</Command.Empty>
+                                <Command.Group>
+                                    {#each studList as framework}
+                                        <Command.Item
+                                            value={framework.value}
+                                            onSelect={() => {
+                                                value = framework.value;
+                                                closeAndFocusTrigger();
+                                            }}
+                                        >
+                                            <CheckIcon class={cn("mr-2 size-4", value !== framework.value && "text-transparent")} />
+                                            {framework.label}
+                                        </Command.Item>
+                                    {/each}
+                                </Command.Group>
+                            </Command.List>
+                        </Command.Root>
+                    </Popover.Content>
+                </Popover.Root>
+
+                
+              <div class="mt-4 flex gap-2">
+                <Input type="number" placeholder="amount" class="max-w-xs" bind:value={amount} />
+                <Button class = "" onclick={() => sendMoney(value, amount)} disabled={!value || !amount}>
+                    Send Money
+                </Button>
+              </div>
         </CardContent>
     </Card>
 {/if}
