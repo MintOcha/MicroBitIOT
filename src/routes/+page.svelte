@@ -48,14 +48,13 @@
     socket.on("weather", (weather) => {
         console.log("Received weather update:", weather);
         simState.weather = weather;
-
-        socket.emit("stats", simState.score);
     });
     socket.on("simSpeed", (speed) => {
         simState.simSpeed = speed;
     });
     socket.on("time", (time) => {
         simState.desync = time - Date.now();
+        socket.emit("stats", simState.score);
     });
 
     // State for simulation speed (using way too many states)
