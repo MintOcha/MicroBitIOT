@@ -56,6 +56,9 @@
         simState.desync = time - Date.now();
         socket.emit("stats", simState.score);
     });
+    socket.on("sendMoney", money => {
+        simState.score += money;
+    })
 
     // State for simulation speed (using way too many states)
     const simSpeeds = [0, 0.5, 1, 2, 5, 10, 50, 100];
