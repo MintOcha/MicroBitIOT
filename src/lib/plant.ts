@@ -15,6 +15,8 @@ class plant {
     windStrength: number;
     timeAlive: number;
     growthRate: number;
+    glassSound: HTMLAudioElement;
+    plantSound: HTMLAudioElement
 
     constructor(p5: p5, posx: number, posz: number, id: number) {
         this.timeAlive = Date.now();
@@ -34,6 +36,11 @@ class plant {
         // 🌬️ Wind variation
         this.windPhase = p5.random(1000); // unique per plant
         this.windStrength = p5.random(0.8, 1.2); // sway variation
+
+        this.glassSound = new Audio('/assets/glass.mp3');
+        this.glassSound.loop = false;
+        this.plantSound = new Audio('/assets/crop.mp3')
+        this.plantSound.loop = false;
     }
 
     struckByLightning(p5: p5, d: number) {
@@ -142,9 +149,17 @@ class plant {
         }
 
         p5.pop();
+
     }
 
     reset(p5: p5) {
+        if (Math.floor(p5.random(0, 100)) == 67) {
+            this.glassSound.play()
+        } else {
+            this.plantSound.play()
+        }
+        
+
         this.timeAlive = Date.now() - this.timeAlive;
         this.timeAlive *= simState.simSpeed / 600;
         simState.score += calculateScore(this.timeAlive);

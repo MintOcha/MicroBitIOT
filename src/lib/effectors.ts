@@ -68,7 +68,6 @@ class effectors {
                 p5.line(0, 0, 0, x, rayLength, z);
             }
             p5.pop();
-
             p5.pop();
         }
 
@@ -121,7 +120,6 @@ class effectors {
                 }
             }
             p5.pop();
-
             p5.pop();
         }
 
@@ -266,8 +264,6 @@ class effectors {
                 p5.pop();
             }
             p5.pop();
-            p5.pop();
-
             p5.pop();
         }
     }

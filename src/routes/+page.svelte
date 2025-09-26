@@ -73,6 +73,7 @@
     $effect(() => {
         // Whenever slider changes, update simSpeed and show alert if it possibly causes epilepsy
         simState.simSpeed = simSpeed;
+        changePingInterval() // ping microbit more often at high speed
         if (simSpeed >= 50 && !alertOpen && possibleEpilepsy) {
             alertOpen = true;
             simSpeedEnum = 2;
@@ -84,6 +85,16 @@
         possibleEpilepsy = false;
         alertOpen = false;
         simSpeedEnum = 6;
+    }
+    
+    function changePingInterval() {
+        if (!connection) return;
+        if (ping) {
+            clearInterval(ping);
+        }
+        ping = setInterval(() => {
+            writeSensorReadings();
+        }, 500 / simState.simSpeed)
     }
 
     // Functions for BLE connection to micro:bit
@@ -97,9 +108,7 @@
                 clearInterval(ping);
                 ping = null;
             } else if (event.status === "CONNECTED") {
-                ping = setInterval(() => {
-                    writeSensorReadings();
-                }, 500);
+                changePingInterval();
             }
         });
         connectionStatus = await connection.connect();
@@ -117,7 +126,6 @@
                 } else {
                     realValue = parseInt(value);
                 }
-                console.log(`Received effector data ${index} ${value}`);
                 try {
                     simState.effectors[index] = realValue;
                 } catch (e) {
