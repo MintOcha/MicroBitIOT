@@ -19,6 +19,7 @@
 
     let weather = $state("auto");
     let timeOfDay = $state("auto");
+    let studentsCount = $state(0);
 
     const simSpeeds = [0, 0.5, 1, 2, 5, 10, 50, 100];
     let simSpeedEnum = $state(2);
@@ -28,6 +29,10 @@
     onMount(() => {
         socket = io("ws://localhost:3000"); // change to your backend
         window.addEventListener("keydown", handleKeyDown);
+
+        socket.on("students", (count: number) => {
+            studentsCount = count;
+        });
     });
 
     function handleKeyDown(e: KeyboardEvent) {
@@ -108,6 +113,10 @@
     <Card class="mx-auto mt-10 max-w-lg">
         <CardHeader>
             <h2 class="text-xl font-bold">Admin Panel</h2>
+            <Badge variant="secondary" class="mt-2 flex items-center"
+                ><div class="size-2 rounded-full bg-green-500"></div>
+                {studentsCount} student{studentsCount !== 1 ? "s" : ""} online</Badge
+            >
         </CardHeader>
         <CardContent class="flex flex-col">
             <h3 class="text-xl font-semibold tracking-tight">Weather</h3>
