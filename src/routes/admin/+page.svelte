@@ -26,6 +26,8 @@
     let simSpeed = $derived(simSpeeds[simSpeedEnum]);
     let simSpeedText = $derived(simSpeed === 0 ? "Paused" : `${simSpeed}×`);
 
+    const weathers = ["auto", "storm", "rain", "clear", "cloudy", "flood", "drought", "heatwave"];
+
     onMount(() => {
         socket = io("ws://localhost:3000"); // change to your backend
         window.addEventListener("keydown", handleKeyDown);
@@ -109,7 +111,7 @@
     <Card class="mx-auto mt-10 max-w-lg">
         <CardHeader>
             <h2 class="text-xl font-bold">Admin Panel</h2>
-            <Badge variant="secondary" class="mt-2 flex items-center"
+            <Badge variant="secondary" class="mt-2 flex items-center gap-2"
                 ><div class="size-2 rounded-full bg-green-500"></div>
                 {studentsCount} student{studentsCount !== 1 ? "s" : ""} online</Badge
             >
@@ -117,14 +119,11 @@
         <CardContent class="flex flex-col">
             <h3 class="text-xl font-semibold tracking-tight">Weather</h3>
             <div class="mt-2 flex flex-wrap gap-2">
-                <Button variant={weather === "auto" ? "default" : "secondary"} onclick={() => setWeather("auto")}>Auto</Button>
-                <Button variant={weather === "storm" ? "default" : "secondary"} onclick={() => setWeather("storm")}>Storm</Button>
-                <Button variant={weather === "rain" ? "default" : "secondary"} onclick={() => setWeather("rain")}>Rain</Button>
-                <Button variant={weather === "clear" ? "default" : "secondary"} onclick={() => setWeather("clear")}>Clear</Button>
-                <Button variant={weather === "cloudy" ? "default" : "secondary"} onclick={() => setWeather("cloudy")}>Cloudy</Button>
-                <Button variant={weather === "flood" ? "default" : "secondary"} onclick={() => setWeather("flood")}>Flood</Button>
-                <Button variant={weather === "drought" ? "default" : "secondary"} onclick={() => setWeather("drought")}>Drought</Button>
-                <Button variant={weather === "heatwave" ? "default" : "secondary"} onclick={() => setWeather("heatwave")}>Heatwave</Button>
+                {#each weathers as weatherType}
+                    <Button variant={weather === weatherType ? "default" : "secondary"} onclick={() => setWeather(weatherType)}
+                        >{weatherType.charAt(0).toUpperCase() + weatherType.slice(1)}</Button
+                    >
+                {/each}
             </div>
             <h3 class="mt-8 text-xl font-semibold tracking-tight">Time of day</h3>
             <div class="mt-2 flex flex-wrap gap-2">
