@@ -147,7 +147,7 @@ class plant {
     reset(p5: p5) {
         this.timeAlive = Date.now() - this.timeAlive;
         this.timeAlive *= simState.simSpeed / 600;
-        simState.score += calculateScore(this.timeAlive);   
+        simState.score += calculateScore(this.timeAlive);
         console.log(simState.score); //please change for different scoring system
         this.tiltAngle = p5.radians(p5.random(-180, 180));
         this.health = helth(p5, simState.soilm, simState.temp, simState.light, 1);
@@ -163,12 +163,11 @@ class plant {
         this.windStrength = p5.random(0.8, 1.2); // sway variation
         this.timeAlive = Date.now();
     }
-
 }
 // Score function: 100 points for minimum time, linearly decreases for longer times
 
 function calculateScore(timeAlive: number) {
-    const minTime = (2976 / 60) / simState.simSpeed; // scale to simSpeed
+    const minTime = 2976 / 60 / simState.simSpeed; // scale to simSpeed
     const maxScore = 100;
     if (timeAlive <= minTime) return maxScore;
     // Find k so that score ≈ 0 at penaltyTime = 500 seconds

@@ -23,7 +23,7 @@ class effectors {
         this.lampWidth = 300;
         this.lampHeight = 50;
         this.lampDepth = 300;
-        
+
         // Position the lamp above the farmland
         this.lampPos = p5.createVector(0, -p5.height / 3 - 100, 0);
     }
@@ -177,56 +177,54 @@ class effectors {
 
         // --- Watering Can (realistic, professional) ---
         // --- Watering Can (fixed orientation & realistic) ---
-if (this.soilm) {
-    p5.push();
+        if (this.soilm) {
+            p5.push();
 
-    // Position on farmland
-    const canX = 0;
-    const canY = 50;   // sitting above soil
-    const canZ = 0;
-    p5.translate(canX, canY, canZ);
+            // Position on farmland
+            const canX = 0;
+            const canY = 50; // sitting above soil
+            const canZ = 0;
+            p5.translate(canX, canY, canZ);
 
-    // Rotate so it stands upright (not sideways)
-    p5.rotateX(p5.radians(0));
-    p5.rotateZ(p5.radians(0));
+            // Rotate so it stands upright (not sideways)
+            p5.rotateX(p5.radians(0));
+            p5.rotateZ(p5.radians(0));
 
-    // Materials
-    p5.ambientMaterial(180, 180, 150);
-    p5.specularMaterial(220);
-    p5.shininess(20);
+            // Materials
+            p5.ambientMaterial(180, 180, 150);
+            p5.specularMaterial(220);
+            p5.shininess(20);
 
-    // --- Body ---
-    p5.push();
-    p5.translate(0,-10,0)
-    p5.cylinder(40, 80, 24, 1); // vertical cylinder
-    p5.pop();
+            // --- Body ---
+            p5.push();
+            p5.translate(0, -10, 0);
+            p5.cylinder(40, 80, 24, 1); // vertical cylinder
+            p5.pop();
 
-    // --- Handle ---
-    p5.push();
-    p5.noFill();
-    p5.stroke(170, 170, 140);
-    p5.strokeWeight(10);
-    // Arc handle on top of body
-    p5.rotateX(0);
-    p5.translate(0, -50, 0)
-    p5.arc(0, 0, 90, 90, p5.PI, 0);
-    p5.noStroke();
-    p5.pop();
+            // --- Handle ---
+            p5.push();
+            p5.noFill();
+            p5.stroke(170, 170, 140);
+            p5.strokeWeight(10);
+            // Arc handle on top of body
+            p5.rotateX(0);
+            p5.translate(0, -50, 0);
+            p5.arc(0, 0, 90, 90, p5.PI, 0);
+            p5.noStroke();
+            p5.pop();
 
-    // --- Spout ---
-    p5.push();
-    p5.translate(50, -20, 0);   // attach to body side
-    p5.rotateZ(p5.radians(30)); // tilt spout downward
-    p5.cylinder(8, 60, 12, 1);
+            // --- Spout ---
+            p5.push();
+            p5.translate(50, -20, 0); // attach to body side
+            p5.rotateZ(p5.radians(30)); // tilt spout downward
+            p5.cylinder(8, 60, 12, 1);
 
-    
+            p5.pop();
 
-    p5.pop();
-
-     // stream parameters
-            const streamCount = 12;        // number of visible streams
-            const streamLength = 36;       // length in segments
-            const jitter = 0.9;            // small horizontal jitter
+            // stream parameters
+            const streamCount = 12; // number of visible streams
+            const streamLength = 36; // length in segments
+            const jitter = 0.9; // small horizontal jitter
             p5.strokeWeight(2);
             p5.stroke(80, 170, 255, 200);
             p5.push();
@@ -267,12 +265,11 @@ if (this.soilm) {
                 p5.sphere(dropSize);
                 p5.pop();
             }
-            p5.pop()
-    p5.pop();
+            p5.pop();
+            p5.pop();
 
-    p5.pop();
-}
-
+            p5.pop();
+        }
     }
 
     update(p5: p5) {

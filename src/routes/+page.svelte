@@ -16,14 +16,13 @@
     import { Button } from "$lib/components/ui/button/index.js";
     import { Slider } from "$lib/components/ui/slider/index.js";
     import { Badge } from "$lib/components/ui/badge/index.js";
-    import * as Select from "$lib/components/ui/select/index.js";
     import * as AlertDialog from "$lib/components/ui/alert-dialog/index.js";
 
     // Custom components
     import SensorCard from "$lib/components/sensorCard.svelte";
 
     // Icons
-    import { Bluetooth, Network, Sun, Wind, Droplet, Thermometer } from "lucide-svelte";
+    import { Sprout, CircleDollarSign, Bluetooth, School, Check, Sun, Wind, Droplet, Thermometer } from "lucide-svelte";
     import ModeToggle from "$lib/components/modeToggle.svelte";
 
     // WebSocket
@@ -57,7 +56,7 @@
         socket.emit("stats", simState.score);
     });
     socket.on("receiveMoney", (amount: number) => {
-        console.log("receive money", amount);   
+        console.log("receive money", amount);
         simState.score += amount;
     });
 
@@ -86,15 +85,6 @@
         alertOpen = false;
         simSpeedEnum = 6;
     }
-
-    // Dropdown for simulated environment (probably useless)
-    const simulatedEnvironments = [
-        { value: "farm", label: "Corn farm" },
-        { value: "bus", label: "Fleet of public buses (TODO)" },
-        { value: "school", label: "School (TODO)" },
-    ];
-    let selectedEnvironment = $state("");
-    const triggerContent = $derived(simulatedEnvironments.find((f) => f.value === selectedEnvironment)?.label ?? "Select a simulated environment");
 
     // Functions for BLE connection to micro:bit
     async function connect() {
@@ -178,11 +168,10 @@
             .replace(/^(\w)(.*)/, (_, first, rest) => first.toUpperCase() + rest);
 
     const growingRateClasses: Record<string, string> = {
-        growing: "bg-green-500",
-        "not growing": "bg-yellow-500",
-        wilting: "bg-red-500",
-        "growing fast": "bg-green-500",
-        "growing slowly": "bg-green-500",
+        "Growing quickly": "bg-green-200 dark:bg-green-700",
+        "Growing slowly": "bg-green-200 dark:bg-green-700",
+        "Not growing": "bg-amber-200 dark:bg-amber-700",
+        Wilting: "bg-red-200 dark:bg-red-700",
     };
     let growingBadgeClass = $derived(growingRateClasses[simState.growing]);
 
@@ -199,91 +188,51 @@
 </script>
 
 <div class="absolute top-4 left-4 max-h-[calc(100vh-2rem)] w-sm overflow-y-auto rounded-lg bg-background p-4 shadow-lg" {onwheel}>
-    <div class="flex gap-2">
-        <!-- Dropdown for simulated environment -->
-        <Select.Root type="single" name="favoriteFruit" bind:value={selectedEnvironment}>
-            <Select.Trigger class="w-full">
-                {triggerContent}
-            </Select.Trigger>
-            <Select.Content>
-                <Select.Group>
-                    <Select.Label>Simulated environments</Select.Label>
-                    {#each simulatedEnvironments as fruit (fruit.value)}
-                        <Select.Item value={fruit.value} label={fruit.label} disabled={fruit.value === "bus" || fruit.value === "school"}>
-                            {fruit.label}
-                        </Select.Item>
-                    {/each}
-                </Select.Group>
-            </Select.Content>
-        </Select.Root>
+    <!-- Day counter -->
+    <div class="flex items-center justify-between">
+        <h2 class="text-xl font-semibold tracking-tight">Day {simState.daysElapsed}</h2>
         <ModeToggle></ModeToggle>
     </div>
 
-    <!-- Bluetooth connection controls -->
-    <div class={"mt-4 flex max-w-full items-center justify-between rounded-full px-2 py-2 " + bluetoothStatusClass}>
-        <div class="flex items-center justify-start">
-            <Bluetooth class="m-2 size-5 text-secondary-foreground" />
-            <p class="max-w-36 truncate text-sm leading-none font-medium">
-                {toSentenceCase(connectionStatus == "SUPPORT_NOT_KNOWN" ? (connectionStatus = "CONNECTED") : connectionStatus)}
-            </p>
+    <div class="mt-2 flex w-full justify-stretch gap-2">
+        <!-- Growth rate -->
+        <div class={"mt-2 flex max-w-full flex-1 items-center justify-between rounded-full p-2 " + growingBadgeClass}>
+            <div class="flex items-center justify-start">
+                <Sprout class="m-2 size-5 text-secondary-foreground" />
+                <p class="me-2 max-w-36 truncate text-sm font-medium">{String(simState.growing)}</p>
+            </div>
         </div>
-        <Button class="rounded-full" onclick={connect}>Connect</Button>
-    </div>
 
-    <!-- Communist server status -->
-    <div class={"mt-2 flex max-w-full items-center justify-between rounded-full px-2 py-2 " + socketStatusClass}>
-        <div class="flex items-center justify-start">
-            <Network class="m-2 size-5 text-secondary-foreground" />
-            <p class="max-w-36 truncate text-sm leading-none font-medium">{simState.inClassroom ? "Connected" : "Disconnected"}</p>
+        <!-- Money display -->
+        <div class="mt-2 flex max-w-full flex-1 items-center justify-between rounded-full bg-muted p-2">
+            <div class="flex items-center justify-start">
+                <CircleDollarSign class="m-2 size-5 text-secondary-foreground" />
+                <p class="me-2 max-w-36 truncate font-mono text-sm font-medium">{simState.score.toFixed(2)}</p>
+            </div>
         </div>
     </div>
 
-    <!-- Sensor readings display -->
-    <h3 class="mt-8 scroll-m-20 text-xl font-semibold tracking-tight">Sensor readings</h3>
-    <div class="mt-4 flex flex-col gap-2">
-        <SensorCard
-            Icon={Sun}
-            name="Light intensity"
-            value={simState.light}
-            min={0}
-            max={1}
-            effectorName="Lamp"
-            effectorState={simState.effectors[0] ? "ON" : "OFF"}
-            isDelta={false}
-        />
-        <SensorCard
-            Icon={Wind}
-            name="Humidity"
-            value={simState.humidity}
-            min={0}
-            max={1}
-            effectorState={simState.effectors[1] ? "ON" : "OFF"}
-            effectorName="Dehumidifier"
-            isDelta={true}
-        />
-        <SensorCard
-            Icon={Droplet}
-            name="Soil moisture"
-            value={simState.soilm}
-            min={0}
-            max={1}
-            effectorName="Water pump"
-            effectorState={simState.effectors[2] ? "ON" : "OFF"}
-            isDelta={true}
-        />
-        <SensorCard
-            Icon={Thermometer}
-            name="Temperature"
-            value={simState.temp}
-            min={0}
-            max={1}
-            effectorState={simState.effectors[3] ? "ON" : "OFF"}
-            effectorName="Heater"
-            isDelta={true}
-        />
-    </div>
+    <h3 class="mt-8 text-xl font-semibold tracking-tight">Connections</h3>
+    <div class="mt-4 flex w-full justify-stretch gap-2">
+        <!-- Bluetooth connection controls -->
+        <div class={"flex max-w-full grow items-center justify-between rounded-full p-2 " + bluetoothStatusClass}>
+            <div class="flex items-center justify-start">
+                <Bluetooth class="m-2 size-5 text-secondary-foreground" />
+                <p class="max-w-36 truncate text-sm font-medium">
+                    {toSentenceCase(connectionStatus == "SUPPORT_NOT_KNOWN" ? (connectionStatus = "CONNECTED") : connectionStatus)}
+                </p>
+            </div>
+            <Button class="rounded-full" onclick={connect}>Connect</Button>
+        </div>
 
-    <!-- <p>{simState.effectors.join(", ")}</p> -->
+        <!-- Communist server status -->
+        <div class={"flex w-fit rounded-full p-2 " + socketStatusClass}>
+            <School class="m-2 size-5 text-secondary-foreground" />
+            {#if simState.inClassroom}
+                <Check class="m-2 size-5 text-secondary-foreground" />
+            {/if}
+        </div>
+    </div>
 
     <!-- Simulation speed control -->
     {#if !simState.inClassroom}
@@ -349,34 +298,49 @@
 
 <!-- Day Count -->
 <div class="absolute top-4 right-4 max-h-[calc(100vh-2rem)] w-sm overflow-y-auto rounded-lg bg-background p-4 shadow-lg" {onwheel}>
-    <div class="flex items-center gap-2">
-        <h2 class="text-xl font-semibold tracking-tight">
-            Day {simState.daysElapsed}
-        </h2>
-    </div>
-
-    <h3 class="mt-8 text-xl font-semibold tracking-tight">Growth rate</h3>
-    <Badge class={growingBadgeClass + " mt-2 text-sm text-white"}>
-        {String(simState.growing)}
-    </Badge>
-
-    <h3 class="mt-8 text-xl font-semibold tracking-tight">Economy</h3>
-    <div class="mt-2 space-y-1 text-sm">
-        <div class="flex justify-between"><span>Money: </span><span class="font-mono">{simState.score.toFixed(2)}</span></div>
-        <div class="flex justify-between"><span>Total spent:</span><span class="font-mono">Yay</span></div>
-        <div class="flex justify-between"><span>Avg cost/plant:</span><span class="font-mono">Yay</span></div>
-    </div>
-    <div class="mt-4">
-        <p class="mb-1 text-sm font-semibold">Top plant costs</p>
-        <ul class="max-h-40 space-y-1 overflow-y-auto pr-1 text-xs">
-            <li class="flex justify-between rounded bg-muted px-2 py-1">
-                <span># </span>
-                <span class="font-mono">
-                    1.29
-                    <span class="text-green-600 dark:text-green-400">→ +Bay</span>
-                </span>
-            </li>
-        </ul>
+    <!-- Sensor readings display -->
+    <h3 class="scroll-m-20 text-xl font-semibold tracking-tight">Sensor readings</h3>
+    <div class="mt-4 flex flex-col gap-2">
+        <SensorCard
+            Icon={Sun}
+            name="Light intensity"
+            value={simState.light}
+            min={0}
+            max={1}
+            effectorName="Lamp"
+            effectorState={simState.effectors[0] ? "ON" : "OFF"}
+            isDelta={false}
+        />
+        <SensorCard
+            Icon={Wind}
+            name="Humidity"
+            value={simState.humidity}
+            min={0}
+            max={1}
+            effectorState={simState.effectors[1] ? "ON" : "OFF"}
+            effectorName="Dehumidifier"
+            isDelta={true}
+        />
+        <SensorCard
+            Icon={Droplet}
+            name="Soil moisture"
+            value={simState.soilm}
+            min={0}
+            max={1}
+            effectorName="Water pump"
+            effectorState={simState.effectors[2] ? "ON" : "OFF"}
+            isDelta={true}
+        />
+        <SensorCard
+            Icon={Thermometer}
+            name="Temperature"
+            value={simState.temp}
+            min={0}
+            max={1}
+            effectorState={simState.effectors[3] ? "ON" : "OFF"}
+            effectorName="Heater"
+            isDelta={true}
+        />
     </div>
 </div>
 

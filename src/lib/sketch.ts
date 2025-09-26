@@ -125,7 +125,6 @@ function setup(p5: p5) {
 }
 
 function draw(p5: p5, goofy: () => void) {
-    
     p5.background(simState.bgcolor ? simState.bgcolor : p5.color(0));
 
     timeOfDay = (sun.angle * 180) / p5.PI;
@@ -190,13 +189,13 @@ function draw(p5: p5, goofy: () => void) {
     avggrowth = p5.map(avggrowth, -0.0005, 0.00028, -1, 1);
 
     if (avggrowth > 0.5) {
-        simState.growing = "growing fast";
+        simState.growing = "Growing quickly";
     } else if (avggrowth > 0.1) {
-        simState.growing = "growing slowly";
+        simState.growing = "Growing slowly";
     } else if (avggrowth > -0.1) {
-        simState.growing = "not growing";
+        simState.growing = "Not growing";
     } else if (avggrowth < -0.1) {
-        simState.growing = "wilting";
+        simState.growing = "Wilting";
     }
 
     homeostasis(p5);
@@ -244,7 +243,6 @@ function windowResized(p5: p5) {
 }
 
 function homeostasis(p5: p5) {
-    
     if (timeOfDay >= 180 && timeOfDay < 270) {
         simState.light = p5.map(timeOfDay, 180, 270, 0, 1);
         simState.temp += p5.map(timeOfDay, 180, 270, 0, 0.0015 * simState.simSpeed);
@@ -275,28 +273,28 @@ function homeostasis(p5: p5) {
         simState.humidity += 0.004 * simState.simSpeed;
         simState.temp -= 0.0005 * simState.simSpeed; // slight cooling effect
     }
-if(simState.score > 0){
-    // light effector
-    simState.light += simState.effectors[0] / 100;
-    simState.score -= (simState.effectors[0] / 100) * simState.simSpeed / p5.frameRate() * 3; // using light costs 3 per second, scaled to simSpeed
+    if (simState.score > 0) {
+        // light effector
+        simState.light += simState.effectors[0] / 100;
+        simState.score -= (((simState.effectors[0] / 100) * simState.simSpeed) / p5.frameRate()) * 3; // using light costs 3 per second, scaled to simSpeed
 
-    // dehumidifier effector
-    simState.humidity -= (simState.effectors[1] / 200) * simState.simSpeed; // dehumidifier effector
-    simState.score -= simState.effectors[1] * simState.simSpeed / p5.frameRate() * 3; // using dehumidifier costs 2.5 per second, scaled to simSpeed
+        // dehumidifier effector
+        simState.humidity -= (simState.effectors[1] / 200) * simState.simSpeed; // dehumidifier effector
+        simState.score -= ((simState.effectors[1] * simState.simSpeed) / p5.frameRate()) * 3; // using dehumidifier costs 2.5 per second, scaled to simSpeed
 
-    // water pump effector
-    simState.soilm += (simState.effectors[2] / 200) * simState.simSpeed;
-    simState.humidity += (simState.effectors[2] / 200) * simState.simSpeed;
-    simState.score -= simState.effectors[2] * simState.simSpeed / p5.frameRate() * 5; // using water pump costs 5 per second, scaled to simSpeed
+        // water pump effector
+        simState.soilm += (simState.effectors[2] / 200) * simState.simSpeed;
+        simState.humidity += (simState.effectors[2] / 200) * simState.simSpeed;
+        simState.score -= ((simState.effectors[2] * simState.simSpeed) / p5.frameRate()) * 5; // using water pump costs 5 per second, scaled to simSpeed
 
-    // temp effector
-    simState.temp += (simState.effectors[3] / 600) * simState.simSpeed;
-    simState.score -= simState.effectors[3] * simState.simSpeed / p5.frameRate() * 5; // using temp effector costs 5 per second, scaled to simSpeed
-}else{
-    simState.effectors = [0,0,0,0];
-    simState.score = 0;
-    console.log("ur broke");
-}
+        // temp effector
+        simState.temp += (simState.effectors[3] / 600) * simState.simSpeed;
+        simState.score -= ((simState.effectors[3] * simState.simSpeed) / p5.frameRate()) * 5; // using temp effector costs 5 per second, scaled to simSpeed
+    } else {
+        simState.effectors = [0, 0, 0, 0];
+        simState.score = 0;
+        console.log("ur broke");
+    }
     setPoint();
     simState.light = p5.constrain(simState.light, 0, 1);
     simState.humidity = p5.constrain(simState.humidity, 0, 1);

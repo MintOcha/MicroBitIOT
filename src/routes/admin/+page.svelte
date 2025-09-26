@@ -73,8 +73,8 @@
         amount = 1;
     }
     function sendMoney(id: string, money: number) {
-      clearInput();
-      console.log("send money", { id, money });
+        clearInput();
+        console.log("send money", { id, money });
         socket.emit("sendMoney", { id, money });
     }
 
@@ -103,16 +103,15 @@
     import { cn } from "$lib/utils.js";
 
     const studList: { value: string; label: string }[] = [];
-   $effect(() => {
-    studList.length = 0;
-    for (let i of leaderboard) {
-        studList.push({ value: i.id, label: `${i.id} (${i.score.toFixed(2)})` });
-    }
-
-   })
+    $effect(() => {
+        studList.length = 0;
+        for (let i of leaderboard) {
+            studList.push({ value: i.id, label: `${i.id} (${i.score.toFixed(2)})` });
+        }
+    });
     let open = $state(false);
     let value = $state("");
-    let amount : number = $state(1);
+    let amount: number = $state(1);
     let triggerRef = $state<HTMLButtonElement>(null!);
 
     const selectedValue = $state(studList.find((f) => f.value === value)?.label);
@@ -168,7 +167,6 @@
                 {/each}
             </div>
 
-            
             <div class="mt-8 flex items-center gap-2">
                 <h3 class="text-xl font-semibold tracking-tight">Simulation speed</h3>
                 <Badge variant="secondary">{simSpeedText}</Badge>
@@ -178,46 +176,43 @@
                 <h3 class="text-xl font-semibold tracking-tight">Miscellaneous</h3>
             </div>
 
-                <Popover.Root  bind:open>
-                    <Popover.Trigger bind:ref={triggerRef} class = "mt-2" >
-                        {#snippet child({ props })}
-                            <Button variant="outline" class="w-[200px] justify-between" {...props} role="combobox" aria-expanded={open}>
-                                {value ? value : "Select user..."}
-                                <ChevronsUpDownIcon class="ml-2 size-4 shrink-0 opacity-50" />
-                            </Button>
-                        {/snippet}
-                    </Popover.Trigger>
-                    <Popover.Content class="w-[200px] p-0">
-                        <Command.Root>
-                            <Command.Input placeholder="Search users..." />
-                            <Command.List>
-                                <Command.Empty>No users found.</Command.Empty>
-                                <Command.Group>
-                                    {#each studList as framework}
-                                        <Command.Item
-                                            value={framework.value}
-                                            onSelect={() => {
-                                                value = framework.value;
-                                                closeAndFocusTrigger();
-                                            }}
-                                        >
-                                            <CheckIcon class={cn("mr-2 size-4", value !== framework.value && "text-transparent")} />
-                                            {framework.label}
-                                        </Command.Item>
-                                    {/each}
-                                </Command.Group>
-                            </Command.List>
-                        </Command.Root>
-                    </Popover.Content>
-                </Popover.Root>
+            <Popover.Root bind:open>
+                <Popover.Trigger bind:ref={triggerRef} class="mt-2">
+                    {#snippet child({ props })}
+                        <Button variant="outline" class="w-[200px] justify-between" {...props} role="combobox" aria-expanded={open}>
+                            {value ? value : "Select user..."}
+                            <ChevronsUpDownIcon class="ml-2 size-4 shrink-0 opacity-50" />
+                        </Button>
+                    {/snippet}
+                </Popover.Trigger>
+                <Popover.Content class="w-[200px] p-0">
+                    <Command.Root>
+                        <Command.Input placeholder="Search users..." />
+                        <Command.List>
+                            <Command.Empty>No users found.</Command.Empty>
+                            <Command.Group>
+                                {#each studList as framework}
+                                    <Command.Item
+                                        value={framework.value}
+                                        onSelect={() => {
+                                            value = framework.value;
+                                            closeAndFocusTrigger();
+                                        }}
+                                    >
+                                        <CheckIcon class={cn("mr-2 size-4", value !== framework.value && "text-transparent")} />
+                                        {framework.label}
+                                    </Command.Item>
+                                {/each}
+                            </Command.Group>
+                        </Command.List>
+                    </Command.Root>
+                </Popover.Content>
+            </Popover.Root>
 
-                
-              <div class="mt-4 flex gap-2">
+            <div class="mt-4 flex gap-2">
                 <Input type="number" placeholder="amount" class="max-w-xs" bind:value={amount} />
-                <Button class = "" onclick={() => sendMoney(value, amount)} disabled={!value || !amount}>
-                    Send Money
-                </Button>
-              </div>
+                <Button class="" onclick={() => sendMoney(value, amount)} disabled={!value || !amount}>Send Money</Button>
+            </div>
         </CardContent>
     </Card>
 {/if}

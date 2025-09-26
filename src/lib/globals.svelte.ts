@@ -35,7 +35,7 @@ const simState: {
     score: 500,
     daysElapsed: 1,
     desync: 0,
-    growing: "not growing",
+    growing: "",
     timeElapsed: 0,
 });
 
