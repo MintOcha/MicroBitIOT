@@ -204,7 +204,7 @@ class cloud {
 
         // Update raindrops
         for (let drop of this.raindrops) {
-            drop.y += drop.speed * simState.simSpeed;
+            drop.y += drop.speed * simState.simSpeed * 10;
         }
         this.raindrops = this.raindrops.filter((d) => d.y < p5.height / 5);
 

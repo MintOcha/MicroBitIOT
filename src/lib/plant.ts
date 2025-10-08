@@ -34,7 +34,7 @@ class plant {
         this.growthFactor = p5.random(0.8, 1.2);
 
         // 🌬️ Wind variation
-        this.windPhase = p5.random(1000); // unique per plant
+        this.windPhase = p5.random(1); // unique per plant
         this.windStrength = p5.random(0.8, 1.2); // sway variation
 
         this.glassSound = new Audio('/assets/glass.mp3');
@@ -174,7 +174,7 @@ class plant {
         this.growthFactor = p5.random(0.8, 1.2);
 
         // 🌬️ Wind variation
-        this.windPhase = p5.random(1000); // unique per plant
+        this.windPhase = p5.random(1); // unique per plant
         this.windStrength = p5.random(0.8, 1.2); // sway variation
         this.timeAlive = Date.now();
     }

@@ -1,0 +1,15 @@
+# Node-related folders that shouldn't be baked into the image
+node_modules
+.svelte-kit
+build
+
+# VCS and editor cruft
+.git
+.gitignore
+.idea
+.vscode
+
+# OS artifacts
+*.log
+*.tmp
+*.swp

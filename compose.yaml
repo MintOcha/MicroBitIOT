@@ -1,0 +1,21 @@
+# MicroBit IoT project
+# Maintainer: Josiah
+#
+# Use this compose file to deploy the SvelteKit app behind the shared reverse proxy.
+
+services:
+  microbitiot:
+    build:
+      context: .
+      target: runner
+    environment:
+      VIRTUAL_PORT: 80 # tells the nginx proxy which port the app listens on
+      VIRTUAL_HOST: farmsim.dev.tk.sg # external hostname for the app
+    networks:
+      - devtksg
+    expose:
+      - "80"
+
+networks:
+  devtksg:
+    external: true
